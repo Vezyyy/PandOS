@@ -29,9 +29,6 @@ Developed in Python, the bot leverages discord.py, asyncio, requests, and Beauti
 - **Prefix:** `$`
 - **Hosting:** [bot-hosting.net](https://bot-hosting.net)
 
-## Example Commands
-### Admin Commands
-
 ## AI-Assisted Development
 To speed up prototyping and enhance certain features, parts of PandOS were developed with the assistance of AI tools.  
 This includes:
