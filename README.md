@@ -24,7 +24,7 @@ Developed in Python, the bot leverages discord.py, asyncio, requests, and Beauti
 ## Technical Details
 - **Version:** 6.1.7
 - **Last Update:** 05.07.2025
-- **Creators:** VPanda & PandOS Team & BSOG Team
+- **Creators:** VPanda Studio & PandOS Team & BSOG Team
 - **Lines of Code:** 5,000 +
 - **Prefix:** `$`
 - **Hosting:** [bot-hosting.net](https://bot-hosting.net)
