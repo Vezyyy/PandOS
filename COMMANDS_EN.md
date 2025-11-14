@@ -6,7 +6,7 @@ Commands are grouped by category. For each command you will find: description, u
 
 Note: Prefix used by the bot in the code is `$`. Replace `$` with your server's prefix if different.
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Table of Contents
 - Economy & Currency
@@ -20,7 +20,7 @@ Note: Prefix used by the bot in the code is `$`. Replace `$` with your server's 
 - Fun / Social
 - Integration / Misc
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Economy & Currency
 
@@ -69,7 +69,7 @@ Note: Prefix used by the bot in the code is `$`. Replace `$` with your server's 
 - Permissions: none
 - Example: `$ranks`
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Gambling & Games
 
@@ -121,7 +121,7 @@ Notes:
 ### jackpot / double / safe / risky
 - These are not separate commands; they are subgames under `$gambling`. Use `$gambling <game> <amount>`.
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Shop & Inventory
 
@@ -164,7 +164,7 @@ Notes:
 - Permissions: none
 - Example: `$buyprotection 24h`
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## XP / Leveling / Leaderboards
 
@@ -185,7 +185,7 @@ Notes:
 Notes:
 - XP is earned from messages and voice activity. There is a per-message cooldown for XP awarding.
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Verification & Welcome
 
@@ -211,7 +211,7 @@ Notes:
 - Permissions: Administrator
 - Example: `$twm`
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Moderation & Warnings
 
@@ -279,7 +279,7 @@ Notes:
 Notes:
 - Warnings are stored in `warnings.json` in the bot directory.
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Administration & Utility
 
@@ -348,7 +348,7 @@ Notes:
 - Permissions: Administrator
 - Example: `$check_sales`
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Teams & Community
 
@@ -382,7 +382,7 @@ Notes:
 - Permissions: Administrator
 - Example: `$sendrateserverinfo 123456789012345678`
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Fun / Social
 
@@ -446,7 +446,7 @@ Notes:
 - Permissions: none
 - Example: `$gooneroftheday`
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Voice & Calls
 
@@ -460,7 +460,7 @@ Notes:
 - The view uses discord UI buttons and times out after 60 seconds.
 - If the bot lacks move permissions or DMs are closed, actions may fail.
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Integration / Misc
 
@@ -469,7 +469,7 @@ Notes:
 - Usage: Automatic (task) or `$check_sales` (admin)
 - Permissions: Administrator (for manual check)
 
----
+------------------------------------------------------------------------------------------------------------------------
 
 ## Help Commands
 
@@ -488,23 +488,8 @@ Notes:
 Notes:
 - The bot also sets a custom help via `bot.help_command = UserHelpCommand()` and contains several help embeds split into parts.
 
----
+------------------------------------------------------------------------------------------------------------------------
 
-## Notes on Behavior & Implementation Caveats
+MORE ABOUT PandOS Bot: https://vezyyy.github.io/VPanda/PandOS
 
-- Some functions in the source are duplicated or overridden (e.g., multiple definitions of certain helper functions or event handlers). The behavior in an active bot depends on which definitions remain (later definitions override earlier ones).
-- Many admin commands assume the bot has necessary guild permissions (manage roles, ban members, manage channels, send DMs, move members).
-- Sensitive configuration (TOKEN, important IDs) should be stored in environment variables or a separate config file — do not publish them in a public repo.
-- Several features persist data to JSON files (e.g., `gambling.json`, `pandocoin_rate.json`, `warnings.json`, `user_data.json`, `story_data.json`, `gooneroftheday.json`). Make sure the bot has write access to its working directory and back up these files if needed.
-- The `$announcement` and `$pvsend` commands will attempt to DM many users — beware of rate limits and ensure the bot respects usage guidelines.
-- The `$fuck` command and some outputs in "fun" commands might include NSFW or explicit material (GIF URLs). Use with caution and obey server rules.
-
----
-
-If you want, I can:
-- generate this file as `COMMANDS_EN.md` in your repo (I can prepare a commit patch), or
-- produce a shorter cheat-sheet (single-page summary), or
-- produce per-category separate markdown files for inclusion in a docs folder.
-
-Which option do you prefer?
 ```
