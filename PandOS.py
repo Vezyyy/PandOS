@@ -1768,25 +1768,6 @@ async def periodic_save():
     save_user_data()
 
 
-# Giving XP for messages
-
-@bot.event
-async def on_message(message):
-    await collect_words(message)
-    if message.author.bot:
-        return
-
-    user = get_user_data(str(message.author.id))
-    current_time = time.time()
-
-    if current_time - user["last_message_time"] > 10: 
-        user["xp"] += 10  
-        user["last_message_time"] = current_time
-        check_level_up(user)  
-        save_user_data() 
-
-    await bot.process_commands(message)
-
 # Giving XP for voice chat activity
 
 @tasks.loop(seconds=60) 
@@ -3275,30 +3256,6 @@ async def Pwarn(ctx, user: discord.Member, *, reason: str = "No reason provided"
 
 #################################################################################
 
-# Event: on_member_join - Welcome new member and create verification channel
-
-@bot.event
-async def on_member_join(member):
-    print(f"{member.name} dołączył do serwera.")
-
-    add_user_on_join(
-        str(member.id)
-    ) 
-
-    welcome_channel = discord.utils.get(
-        member.guild.text_channels, name="general"
-    )  
-    if welcome_channel:
-        await welcome_channel.send(
-            f"Welcome to the server, {member.mention}! Feel free to say hello!"
-        )
-
-    if VERIFY_ROLE_ID not in [role.id for role in member.roles]:
-        await create_verification_channel(member)
-
-
-#################################################################################
-
 
 # $unmute <user> - Delete mute from user
 
@@ -3728,24 +3685,19 @@ bot.help_command = UserHelpCommand()
 
 @bot.event
 async def on_member_join(member):
-    await send_welcome_message_to_user(member) 
-    log_channel = bot.get_channel(LOG_CHANNEL_ID)
-    await send_log_embed(
-        log_channel, "Member Joined", f"{member.name} has joined the server."
-    )
+    print(f"{member.name} joined the server.")
 
+    # Add user to database / tracking (if you use this)
+    add_user_on_join(str(member.id))
 
-#################################################################################
-
-# NEW USER GREETINGS!
-#-----------------------------------------------------------------------------
-
-@bot.event
-async def on_member_join(member):
+    # ---- SELECT CHANNELS ----
     new_user_channel = bot.get_channel(NEW_USER_CHANNEL_ID)
     if new_user_channel is None:
         new_user_channel = discord.utils.get(member.guild.text_channels, name="general")
 
+    log_channel = bot.get_channel(LOG_CHANNEL_ID)
+
+    # ---- SEND PUBLIC WELCOME MESSAGE ----
     if new_user_channel:
         await new_user_channel.send(
             f"👋 Welcome to the server, {member.mention}! Feel free to say hello!"
@@ -3755,10 +3707,10 @@ async def on_member_join(member):
             title="🎉 Welcome to Better Side Of Gaming! 🎮",
             description=(
                 f"Hey {member.mention}, welcome to **Better Side Of Gaming**!\n\n"
-                f"We're really happy to have you here. Be sure to check out our server rules and guidelines 📜\n"
+                f"Be sure to check out our server rules 📜\n"
                 f"And most importantly... **Have Fun!** 🚀\n\n"
-                f"🔗 **Check Our Website:** [BetterSideOfGaming](https://vezyyy.github.io/BetterSideOfGaming/)\n"
-                f"🤝 **Invite Your Friends:** https://discord.gg/Tr3BQPER34"
+                f"🔗 **Website:** [BetterSideOfGaming](https://vezyyy.github.io/BetterSideOfGaming/)\n"
+                f"🤝 **Invite Friends:** https://discord.gg/Tr3BQPER34"
             ),
             color=discord.Color.purple(),
             timestamp=member.joined_at,
@@ -3768,13 +3720,16 @@ async def on_member_join(member):
             name=f"{member.name} just joined!",
             icon_url=member.avatar.url if member.avatar else None,
         )
+
         embed.set_thumbnail(url=member.avatar.url if member.avatar else None)
+
         embed.add_field(name="🆔 User ID", value=member.id, inline=True)
         embed.add_field(
             name="📆 Account Created",
             value=discord.utils.format_dt(member.created_at, style="F"),
-            inline=True,
+            inline=True
         )
+
         embed.set_footer(
             text="Better Side Of Gaming • Let’s play together!",
             icon_url=member.guild.icon.url if member.guild.icon else None,
@@ -3782,14 +3737,23 @@ async def on_member_join(member):
 
         await new_user_channel.send(embed=embed)
 
+    # ---- SEND PRIVATE WELCOME MESSAGE ----
     await send_welcome_message_to_user(member)
 
-    log_channel = bot.get_channel(LOG_CHANNEL_ID)
+    # ---- LOG JOIN IN LOG CHANNEL ----
     if log_channel:
-        await log_channel.send(
-            f"✅ `{member}` has joined the server. (ID: {member.id})"
+        await send_log_embed(
+            log_channel,
+            "Member Joined",
+            f"{member.name} has joined the server. (ID: {member.id})"
         )
 
+    # ---- CREATE VERIFICATION CHANNEL IF NEEDED ----
+    if VERIFY_ROLE_ID not in [role.id for role in member.roles]:
+        await create_verification_channel(member)
+
+
+#################################################################################
 
 # ------------------------
 # WELCOME MESSAGE FUNCTION
@@ -3958,6 +3922,22 @@ async def on_message(message):
     if message.content.startswith("$"):
         await bot.process_commands(message)
         return
+
+    #################################################################################
+
+    # Giving XP for messages
+    #-----------------------------------------------------------------------------
+
+    user = get_user_data(str(message.author.id))
+    current_time = time.time()
+
+    if current_time - user["last_message_time"] > 10: 
+        user["xp"] += 10  
+        user["last_message_time"] = current_time
+        check_level_up(user)  
+        save_user_data() 
+
+    await bot.process_commands(message)
 
     #################################################################################
 
@@ -4426,7 +4406,6 @@ async def on_message(message):
             return
 
     await bot.process_commands(message)
-
 
 #################################################################################
 
