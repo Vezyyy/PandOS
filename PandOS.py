@@ -100,7 +100,6 @@ intents.members = True
 intents.messages = True
 intents.message_content = True  
 intents.voice_states = True 
-client = discord.Client(intents=intents)
 
 #################################################################################
 
@@ -2357,13 +2356,14 @@ async def report_bug(ctx, *, reason: str):
 @bot.command()
 async def bonk(ctx, user: discord.Member):
     gify = [
-        "https://tenor.com/view/bubu-bonk-bubu-dudu-gif-8932107540415697346",
-        "https://tenor.com/view/bonk-gif-13392138837084579216",
-        "https://tenor.com/view/%D0%B1%D0%BE%D0%BD%D0%BA-%D0%B4%D0%BE%D0%B3%D0%B5-gif-122068642611502956",
-        "https://tenor.com/view/abster-abstract-abstractchain-bonk-consumer-gif-2322906684408531915",
-        "https://tenor.com/view/catbonk-cat-bonk-bonkcat-carbonk-gif-4837569307101263147",
-        "https://tenor.com/view/crypto-bitcoin-penguin-pudgy-security-gif-2317386414418142707",
-        "https://tenor.com/view/whackamole-whack-a-mole-whack-bonk-bonked-gif-11416948983543010472",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "ADD MORE GIF's if you want ...",
     ]
 
     bonkujacy = ctx.author.mention
@@ -2381,11 +2381,12 @@ async def bonk(ctx, user: discord.Member):
 @bot.command()
 async def slap(ctx, user: discord.Member):
     gifs = [
-        "https://tenor.com/view/cats-cat-slap-slap-gif-2895385951685947789",
-        "https://tenor.com/view/penguin-slap-gif-5263949288532448516",
-        "https://tenor.com/view/blu-zushi-black-and-white-emotes-gif-13851867247344432124",
-        "https://tenor.com/view/slap-gif-20040176",
-        "https://tenor.com/view/batman-robin-slap-cachetada-meme-cachetazo-gif-14588588888076113146",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "ADD MORE GIF's if you want ...",
     ]
     await ctx.send(
         f"{ctx.author.mention} slapped {user.mention}! 👋\n{random.choice(gifs)}"
@@ -2399,35 +2400,16 @@ async def slap(ctx, user: discord.Member):
 @bot.command()
 async def hug(ctx, user: discord.Member):
     gifs = [
-        "https://tenor.com/view/sami-en-dina-sami-dina-dina-sami-dina-en-sami-gif-15422575992980791421",
-        "https://tenor.com/view/hug-warm-hug-depressed-hug-gif-4585064738068342394",
-        "https://tenor.com/view/hug-hugs-cuddle-gif-17754615575577561160",
-        "https://tenor.com/view/teen-titans-go-teen-titans-robin-blackfire-hug-gif-16548937900431298718",
-        "https://tenor.com/view/happy-valentines-day-gif-4018945711480394853",
-        "https://tenor.com/view/ori-gif-9960264302835426560",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "ADD MORE GIF's if you want ...",
     ]
     await ctx.send(
         f"{ctx.author.mention} gives a big hug to {user.mention}! 🤗\n{random.choice(gifs)}"
-    )
-
-
-# FUCK COMMAND
-# -----------------
-
-
-@bot.command()
-async def fuck(ctx, user: discord.Member):
-    gifs = [
-        "https://tenor.com/view/dudu-massage-bubu-ass-oh-yeah-baby-cute-couples-i-am-in-love-we-having-sex-tonight-gif-7417278152853129619",
-        "https://tenor.com/view/kiss-love-making-sex-gif-7161439495229090820",
-        "https://tenor.com/view/come-on-baby-having-sex-hot-bed-femme-nue-lit-je-veux-te-baiser-gif-24320695",
-        "https://tenor.com/view/sex-sexy-bell-sex-bell-sexy-time-gif-617915940425528102",
-        "https://tenor.com/view/sex-angry-sex-gif-9749140323280595314",
-        "https://tenor.com/view/sex-erotic-gif-18817073",
-        "https://tenor.com/view/sex-make-out-black-and-white-pants-couple-gif-16388355",
-    ]
-    await ctx.send(
-        f"{ctx.author.mention} gives a big fuck to {user.mention}! 🥵\n{random.choice(gifs)}"
     )
 
 
@@ -2461,10 +2443,14 @@ async def kill(ctx, user: discord.Member):
     ]
 
     gifs = [
-        "https://tenor.com/view/kill-me-gif-19956322",
-        "https://tenor.com/view/kelly-marie-tran-holding-knife-raising-knife-rose-tico-stan-twitter-gif-6061908606672590514",
-        "https://tenor.com/view/gun-surprise-surprise-motherfucker-got-yo-ass-got-em-gif-193035376307781035",
-        "https://tenor.com/view/air-rack-guns-gun-funny-gun-tricks-gif-14402133038550568530",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "GIF LINK",
+        "ADD MORE GIF's if you want ...",
     ]
 
     embed = discord.Embed(
@@ -3516,11 +3502,6 @@ class UserHelpCommand(commands.DefaultHelpCommand):
         embed3.add_field(
             name="$simp <@user>",
             value="Check how much someone is simping with a random percentage! 😳",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$fuck <@user>",
-            value="Unleash pure chaos and awkward vibes by *literally* attempting to have a ridiculous virtual ‘moment’ with the user — prepare for absurd, over-the-top reactions and gifs! 🍆🔥😂",
             inline=False,
         )
         embed3.add_field(
