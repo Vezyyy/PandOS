@@ -404,12 +404,6 @@ Notes:
 - Permissions: none
 - Example: `$hug @Friend`
 
-### fuck
-- Description: (Crude) Send an adult-style gif/message. (Be cautious: content may be explicit.)
-- Usage: `$fuck <@user>`
-- Permissions: none
-- Example: `$fuck @Friend`
-
 ### kill
 - Description: Send a random humorous "kill" text with a gif embed.
 - Usage: `$kill <@user>`
