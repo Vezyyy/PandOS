@@ -4741,6 +4741,18 @@ async def start(ctx, code: str):
 
 #################################################################################
 
+def format_price(price):
+    """Format Steam price to USD string, normalizing high values."""
+    if price is None:
+        return "No data"
+    if price > 1000:
+        normalized_price = price / 1000
+    else:
+        normalized_price = price / 100
+    return f"{normalized_price:.2f} USD"
+
+
+
 async def fetch_steam_sales():
     """Fetches current Steam sales and sends them to Discord."""
     try:
@@ -4758,11 +4770,16 @@ async def fetch_steam_sales():
             print("Discord channel not found. Check the channel ID.")
             return
 
-        embeds = []
+        embed = discord.Embed(
+            title="🔥 Steam Sales Today 🔥",
+            description="Here are some hot deals currently available on Steam:",
+            color=discord.Color.gold(),
+        )
+
         for sale in sales:
             title = sale.get("name", "Unknown game")
             discount_price = sale.get("final_price")
-            normal_price = sale.get("initial_price")
+            normal_price = sale.get("original_price")
             game_url = sale.get("url", "https://store.steampowered.com/")
             discount_percentage = sale.get("discount_percent", 0)
             header_image = sale.get(
@@ -4770,39 +4787,40 @@ async def fetch_steam_sales():
             )
 
             if discount_price is None:
-                print(f"Skipping {title}, missing discount price.")
                 continue
 
-            normal_price_text = (
-                f"Original price: {normal_price / 100:.2f} USD"
-                if normal_price
-                else "No data on original price"
-            )
+            discount_price_text = format_price(discount_price)
+            normal_price_text = format_price(normal_price)
 
-            embed = discord.Embed(
-                title=f"🔥 {title} - {discount_percentage}% OFF!",
-                description=(
-                    f"💰 **Discounted Price**: `{discount_price / 100:.2f} USD`\n"
-                    f"💸 **{normal_price_text}**\n\n"
-                    f"[🛒 Click here to visit the store]({game_url})"
-                ),
-                color=discord.Color.gold(),
-            )
-            embed.set_thumbnail(url=header_image)
-            embed.set_footer(
-                text="Steam Sales Tracker",
-                icon_url="https://store.steampowered.com/favicon.ico",
-            )
-            embeds.append(embed)
+            # Tworzymy linię z promocją
+            if discount_percentage:
+                line = (
+                    f"**{title}** - {discount_percentage}% OFF\n"
+                    f"💰 Discounted Price: `{discount_price_text}`  "
+                    f"~~Original Price: `{normal_price_text}`~~\n"
+                    f"[🛒 Store Link]({game_url})\n"
+                )
+            else:
+                line = (
+                    f"**{title}**\n"
+                    f"💰 Price: `{discount_price_text}`\n"
+                    f"[🛒 Store Link]({game_url})\n"
+                )
 
-        for embed in embeds:
-            await channel.send(embed=embed)
+            embed.add_field(name="\u200b", value=line, inline=False)
+
+        embed.set_footer(
+            text="Steam Sales Tracker",
+            icon_url="https://store.steampowered.com/favicon.ico",
+        )
+
+        await channel.send(embed=embed)
 
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from Steam: {e}")
     except Exception as e:
         print(f"Unexpected error: {e}")
-
+        
 @tasks.loop(hours=24)
 async def send_steam_sales():
     await fetch_steam_sales()
