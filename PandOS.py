@@ -31,7 +31,7 @@ from io import BytesIO
 
 # BUILD INFO
 # VEZYY BY VPanda & VPanda Studio
-# VERSION 6.1.7 - 24.06.2024 Verification System 3.0
+# VERSION 6.1.8 - 29.11.2025 Steam Sales Tracker Update
 
 #################################################################################
 
@@ -43,7 +43,7 @@ current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
 # Bot info
 BOT_STATUS = "Online"  
-BOT_VERSION = "6.1.7" 
+BOT_VERSION = "6.1.8" 
 
 #################################################################################
 
@@ -982,9 +982,6 @@ async def balance(ctx):
 # SHOPPING
 # This command allows users to check their inventory, including items they have purchased and the status of any active protection they may have.
 # It retrieves the user's data from a JSON file and displays it in an organized embed format.
-
-from datetime import datetime
-
 
 @bot.command(name="inventory", aliases=["inv"])
 async def check_inventory(ctx):
@@ -2239,15 +2236,15 @@ async def on_ready():
     start_time = time.time()
     periodic_save.start()
     grant_voice_xp.start()
-    # send_steam_sales.start()  # Start the Steam sales task
+    send_steam_sales.start()  # Start the Steam sales task
     update_pandocoin_rate.start()
 
     ping = bot.latency * 1000 
 
     system_message = (
         f"### [PandOS - Version: {BOT_VERSION}]\n\n"
-        "** [PandOS - 05.07.2025]**\n"
-        "** [PandOS - VERIFICATION 3.0 Fix]**\n"
+        "** [PandOS - 29.11.2025]**\n"
+        "** [PandOS - Steam Sales Futuristic Update]**\n"
         "** [PandOS - Creator: Vezyy | VPanda]**\n\n"
         "🖥️ **▬▬▬ PandOS System Startup ▬▬▬**\n\n"
         "🔧 **PandOS Package** has been launched.\n"
@@ -2356,14 +2353,14 @@ async def report_bug(ctx, *, reason: str):
 @bot.command()
 async def bonk(ctx, user: discord.Member):
     gify = [
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "ADD MORE GIF's if you want ...",
+        "https://tenor.com/view/vorzek-vorzneck-oglg-og-lol-gang-gif-24901093",
+        "https://tenor.com/view/bonk-v%C3%A0o-m%E1%BA%B7t-c%C3%A1i-c%C3%A1m-bonk-anime-bonk-meme-bonk-dog-gif-26069974",
+        "https://tenor.com/view/bonk-gif-19410756",
+        "https://tenor.com/view/bubu-bonk-bubu-dudu-gif-8932107540415697346",
+        "https://tenor.com/view/bonk-gif-13392138837084579216",
+        "https://tenor.com/view/cat-cat-bonk-bonk-cat-attack-white-cat-bonk-camera-gif-12579285308205623581",
+        "https://tenor.com/view/bonk-hurt-pain-gif-19380087",
+        "https://tenor.com/view/dog-enforcement-agency-dea-on-solana-dog-meme-solana-blockchain-meme-wif-bitcoin-eth-pumpfun-crypto-meme-gif-460534289763482698",
     ]
 
     bonkujacy = ctx.author.mention
@@ -2381,12 +2378,13 @@ async def bonk(ctx, user: discord.Member):
 @bot.command()
 async def slap(ctx, user: discord.Member):
     gifs = [
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "ADD MORE GIF's if you want ...",
+        "https://tenor.com/view/shut-up-stfu-shut-your-mouth-slap-slapping-gif-8050553153066707611",
+        "https://tenor.com/view/powerslap-slap-ko-knockout-slap-huge-slap-big-slap-gif-7471918422486227772",
+        "https://tenor.com/view/batman-robin-slap-cachetada-meme-cachetazo-gif-14588588888076113146",
+        "https://tenor.com/view/blu-zushi-black-and-white-emotes-gif-13851867247344432124",
+        "https://tenor.com/view/slap-gif-20040176",
+        "https://tenor.com/view/penguin-slap-gif-5263949288532448516",
+        "https://tenor.com/view/taiga-toradora-fast-slap-slap-baka-gif-11264049955690132886",
     ]
     await ctx.send(
         f"{ctx.author.mention} slapped {user.mention}! 👋\n{random.choice(gifs)}"
@@ -2400,13 +2398,13 @@ async def slap(ctx, user: discord.Member):
 @bot.command()
 async def hug(ctx, user: discord.Member):
     gifs = [
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "ADD MORE GIF's if you want ...",
+        "https://tenor.com/view/cat-gif-6892218099699146160",
+        "https://tenor.com/view/hug-hugs-cuddle-gif-17754615575577561160",
+        "https://tenor.com/view/don-gif-9520776680112053549",
+        "https://tenor.com/view/mocha-and-milk-bears-milk-mocha-cuddle-squeeze-gif-7102673578086768359",
+        "https://tenor.com/view/milk-mocha-milkandmochabears-hug-gif-2028452320346344814",
+        "https://tenor.com/view/gm-gif-14332100165411847198",
+        "https://tenor.com/view/j3pot2-gif-2557771429576618217",
     ]
     await ctx.send(
         f"{ctx.author.mention} gives a big hug to {user.mention}! 🤗\n{random.choice(gifs)}"
@@ -2443,14 +2441,14 @@ async def kill(ctx, user: discord.Member):
     ]
 
     gifs = [
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "GIF LINK",
-        "ADD MORE GIF's if you want ...",
+        "https://tenor.com/view/kill-me-gif-19956322",
+        "https://tenor.com/view/gun-shooting-dont-be-a-menace-funny-lmao-gif-6119299",
+        "https://tenor.com/view/gun-gif-22839895",
+        "https://tenor.com/view/rambo-shooting-gif-23980108",
+        "https://tenor.com/view/fireworks-4th-of-july-fourth-of-july-drunk-man-shooting-fireworks-gif-6998278431839877101",
+        "https://tenor.com/view/atheer-gun-michael-scott-the-office-ath-gif-23470765",
+        "https://tenor.com/view/shooting-fire-gun-bang-falling-down-gif-14742266",
+        "https://tenor.com/view/jumpinpenguin-carry-jp-jp-carry-jumpinpenguin19-official-jp-carry-gif-1962217404091130615",
     ]
 
     embed = discord.Embed(
@@ -4752,9 +4750,8 @@ def format_price(price):
     return f"{normalized_price:.2f} USD"
 
 
-
 async def fetch_steam_sales():
-    """Fetches current Steam sales and sends them to Discord."""
+    """Fetches current Steam sales and sends individual Discord embeds for each game with role ping and store link."""
     try:
         response = requests.get(STEAM_API_URL, timeout=10)
         response.raise_for_status()
@@ -4770,21 +4767,17 @@ async def fetch_steam_sales():
             print("Discord channel not found. Check the channel ID.")
             return
 
-        embed = discord.Embed(
-            title="🔥 Steam Sales Today 🔥",
-            description="Here are some hot deals currently available on Steam:",
-            color=discord.Color.gold(),
-        )
+        first_embed = True 
+
+        store_links = []
 
         for sale in sales:
-            title = sale.get("name", "Unknown game")
+            title = sale.get("name", "Unknown Game")
             discount_price = sale.get("final_price")
             normal_price = sale.get("original_price")
             game_url = sale.get("url", "https://store.steampowered.com/")
             discount_percentage = sale.get("discount_percent", 0)
-            header_image = sale.get(
-                "header_image", "https://store.steampowered.com/favicon.ico"
-            )
+            header_image = sale.get("header_image", "https://store.steampowered.com/favicon.ico")
 
             if discount_price is None:
                 continue
@@ -4792,34 +4785,48 @@ async def fetch_steam_sales():
             discount_price_text = format_price(discount_price)
             normal_price_text = format_price(normal_price)
 
-            # Tworzymy linię z promocją
             if discount_percentage:
-                line = (
-                    f"**{title}** - {discount_percentage}% OFF\n"
-                    f"💰 Discounted Price: `{discount_price_text}`  "
-                    f"~~Original Price: `{normal_price_text}`~~\n"
-                    f"[🛒 Store Link]({game_url})\n"
+                description = (
+                    f"💸 **Discount:** `{discount_percentage}% OFF`\n"
+                    f"💰 **Price:** `{discount_price_text}`  "
+                    f"~~`{normal_price_text}`~~"
                 )
             else:
-                line = (
-                    f"**{title}**\n"
-                    f"💰 Price: `{discount_price_text}`\n"
-                    f"[🛒 Store Link]({game_url})\n"
-                )
+                description = f"💰 **Price:** `{discount_price_text}`"
 
-            embed.add_field(name="\u200b", value=line, inline=False)
+            embed = discord.Embed(
+                title=f"🚀 {title} 🚀",
+                description=description,
+                color=0x00FFE6
+            )
+            embed.set_thumbnail(url=header_image)
+            embed.set_footer(
+                text="Steam Sales Tracker | BetterSideOfGaming ©",
+                icon_url="https://store.steampowered.com/favicon.ico"
+            )
 
-        embed.set_footer(
-            text="Steam Sales Tracker",
-            icon_url="https://store.steampowered.com/favicon.ico",
-        )
+            if first_embed:
+                role_mention = "<@&1297655728806559835>"
+                await channel.send(content=role_mention, embed=embed, allowed_mentions=discord.AllowedMentions(roles=True))
+                first_embed = False
+            else:
+                await channel.send(embed=embed)
 
-        await channel.send(embed=embed)
+            store_links.append(game_url)
+
+        if store_links:
+            final_embed = discord.Embed(
+                title="🔗 View all deals in the Store",
+                description=f"[Click Here]({store_links[0]})",
+                color=0x00FFE6
+            )
+            await channel.send(embed=final_embed)
 
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from Steam: {e}")
     except Exception as e:
         print(f"Unexpected error: {e}")
+
         
 @tasks.loop(hours=24)
 async def send_steam_sales():
