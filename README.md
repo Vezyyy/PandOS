@@ -20,10 +20,11 @@ Developed in Python, the bot leverages discord.py, asyncio, requests, and Beauti
 - **Steam Alerts:** Tracks Steam discounts and notifies users in channels.
 - **Chat Interaction:** AI-powered random responses, message collection, and community enrichment.
 - **Custom Media:** Image management with reactions and sharing options.
+- **Modularity:** Moving commands into separate files for better organization and easier maintenance.
 
 ## Technical Details
-- **Version:** 6.1.7
-- **Last Update:** 05.07.2025
+- **Version:** 7.0.0
+- **Last Update:** 30.11.2025
 - **Creators:** VPanda Studio & PandOS Team & BSOG Team
 - **Lines of Code:** 5,000 +
 - **Prefix:** `$`
