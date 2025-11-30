@@ -51,6 +51,31 @@ class FunCommands(commands.Cog):
         await ctx.send(f"{ctx.author.mention} gives a big hug to {user.mention}! 🤗\n{random.choice(gifs)}")
 
     @commands.command()
+    async def fuck(self, ctx, user: discord.Member):
+        """A chaotic fun command with absurd interactions."""
+        actions = [
+            f"{ctx.author.mention} absolutely annihilated {user.mention} with pure chaos! 💥",
+            f"{ctx.author.mention} summoned a horde of angry hamsters to chase {user.mention}! 🐹🔥",
+            f"{ctx.author.mention} turned {user.mention} into a dancing pineapple. 🍍💃",
+            f"{ctx.author.mention} unleashed a meme storm on {user.mention}. 🌪️😂",
+            f"{ctx.author.mention} sent {user.mention} into an alternate dimension of confusion. 🌀",
+        ]
+        gifs = [
+            "https://tenor.com/view/six-sex-sex-gif-6103032727660715783",
+            "https://tenor.com/view/sex-angry-sex-gif-9749140323280595314",
+            "https://tenor.com/view/dudu-massage-bubu-ass-oh-yeah-baby-cute-couples-i-am-in-love-we-having-sex-tonight-gif-7417278152853129619",
+            "https://tenor.com/view/ted-teddy-bear-bear-hump-humping-gif-4762693",
+        ]
+        embed = discord.Embed(
+            title="💥 Absolute Chaos!",
+            description=random.choice(actions),
+            color=discord.Color.dark_red()
+        )
+        embed.set_footer(text=f"{ctx.author.display_name} is feeling chaotic...")
+        await ctx.send(embed=embed)
+        await ctx.send(f"{random.choice(gifs)}")
+
+    @commands.command()
     async def kill(self, ctx, user: discord.Member):
         deaths = [
             f"{user.mention} got obliterated by a stampede of rubber ducks shooting lasers from their eggs. 🥚🔫🦆",
@@ -139,160 +164,160 @@ class FunCommands(commands.Cog):
         message = await ctx.send(embed=embed)
         await message.add_reaction(emoji)
 
-@commands.command()
-async def simp(self, ctx, user: discord.Member):
-    percent = random.randint(0, 100)
-    bar = get_progress_bar(percent)
+    @commands.command()
+    async def simp(self, ctx, user: discord.Member):
+        percent = random.randint(0, 100)
+        bar = get_progress_bar(percent)
 
-    if percent >= 90:
-        comment = "🫡 The ultimate simp. Knees permanently bent."
-        emoji = "🫡"
-    elif percent >= 80:
-        comment = "🚨 Major simp alert. Get help."
-        emoji = "🚨"
-    elif percent >= 70:
-        comment = "😳 You're simping a bit too hard."
-        emoji = "😳"
-    elif percent >= 60:
-        comment = "😩 High simp energy. Take a break."
-        emoji = "😩"
-    elif percent >= 50:
-        comment = "😬 Slightly down bad..."
-        emoji = "😬"
-    elif percent >= 40:
-        comment = "😅 Some simp traces detected."
-        emoji = "😅"
-    elif percent >= 30:
-        comment = "🙂 Not too simpy. Could go either way."
-        emoji = "🙂"
-    elif percent >= 20:
-        comment = "🧊 Almost clean. Stay strong."
-        emoji = "🧊"
-    elif percent >= 10:
-        comment = "💤 Simp levels nearly undetectable."
-        emoji = "💤"
-    else:
-        comment = "✅ 100% certified non-simp. Respect."
-        emoji = "✅"
+        if percent >= 90:
+            comment = "🫡 The ultimate simp. Knees permanently bent."
+            emoji = "🫡"
+        elif percent >= 80:
+            comment = "🚨 Major simp alert. Get help."
+            emoji = "🚨"
+        elif percent >= 70:
+            comment = "😳 You're simping a bit too hard."
+            emoji = "😳"
+        elif percent >= 60:
+            comment = "😩 High simp energy. Take a break."
+            emoji = "😩"
+        elif percent >= 50:
+            comment = "😬 Slightly down bad..."
+            emoji = "😬"
+        elif percent >= 40:
+            comment = "😅 Some simp traces detected."
+            emoji = "😅"
+        elif percent >= 30:
+            comment = "🙂 Not too simpy. Could go either way."
+            emoji = "🙂"
+        elif percent >= 20:
+            comment = "🧊 Almost clean. Stay strong."
+            emoji = "🧊"
+        elif percent >= 10:
+            comment = "💤 Simp levels nearly undetectable."
+            emoji = "💤"
+        else:
+            comment = "✅ 100% certified non-simp. Respect."
+            emoji = "✅"
 
-    embed = discord.Embed(
-        title="😳 Simp Scanner",
-        description=f"{user.mention} is simping at **{percent}%** level!\n`{bar}`",
-        color=discord.Color.blurple(),
-    )
-    embed.add_field(name="Analysis", value=comment, inline=False)
-    embed.set_footer(text="No judgement... maybe.")
-    message = await ctx.send(embed=embed)
-    await message.add_reaction(emoji)
+        embed = discord.Embed(
+            title="😳 Simp Scanner",
+            description=f"{user.mention} is simping at **{percent}%** level!\n`{bar}`",
+            color=discord.Color.blurple(),
+        )
+        embed.add_field(name="Analysis", value=comment, inline=False)
+        embed.set_footer(text="No judgement... maybe.")
+        message = await ctx.send(embed=embed)
+        await message.add_reaction(emoji)
 
-@commands.command()
-async def gooner(self, ctx, user: discord.Member):
-    percent = random.randint(0, 100)
-    bar = get_progress_bar(percent)
+    @commands.command()
+    async def gooner(self, ctx, user: discord.Member):
+        percent = random.randint(0, 100)
+        bar = get_progress_bar(percent)
 
-    if percent == 100:
-        rank = "🧠 Infinite Loop Gooner"
-        comment = "You've reached the peak. You're not even gooning — you **are** the goon. The tab is now your home screen."
-        emoji = "🧠"
-    elif percent >= 90:
-        rank = "👑 Gooner Master Supreme"
-        comment = "You have ascended. There's no coming back."
-        emoji = "👑"
-    elif percent >= 80:
-        rank = "🚨 Goon General"
-        comment = "You've lost the plot. Absolute madlad."
-        emoji = "🚨"
-    elif percent >= 70:
-        rank = "💀 Tab Collector"
-        comment = "15 tabs open. You’re in deep."
-        emoji = "💀"
-    elif percent >= 60:
-        rank = "🌀 Edging Enthusiast"
-        comment = "You've been here before. And stayed."
-        emoji = "🌀"
-    elif percent >= 50:
-        rank = "😵‍💫 Session Starter"
-        comment = "We see you. And so does your browser history."
-        emoji = "😵‍💫"
-    elif percent >= 40:
-        rank = "😶‍🌫️ Goon Initiate"
-        comment = "You've entered the path of the goon."
-        emoji = "😶‍🌫️"
-    elif percent >= 30:
-        rank = "😳 Soft Stroker"
-        comment = "A bit of motion detected... tread carefully."
-        emoji = "😳"
-    elif percent >= 20:
-        rank = "🫣 Curious Clicker"
-        comment = "Mild curiosity. You’ve opened the tab."
-        emoji = "🫣"
-    elif percent >= 10:
-        rank = "🙈 Mild Observer"
-        comment = "You peek, but you don’t participate... yet."
-        emoji = "🙈"
-    else:
-        rank = "🧊 Ice-Hearted Monk"
-        comment = "Zero goon vibes detected. Cold as steel."
-        emoji = "🧊"
+        if percent == 100:
+            rank = "🧠 Infinite Loop Gooner"
+            comment = "You've reached the peak. You're not even gooning — you **are** the goon. The tab is now your home screen."
+            emoji = "🧠"
+        elif percent >= 90:
+            rank = "👑 Gooner Master Supreme"
+            comment = "You have ascended. There's no coming back."
+            emoji = "👑"
+        elif percent >= 80:
+            rank = "🚨 Goon General"
+            comment = "You've lost the plot. Absolute madlad."
+            emoji = "🚨"
+        elif percent >= 70:
+            rank = "💀 Tab Collector"
+            comment = "15 tabs open. You’re in deep."
+            emoji = "💀"
+        elif percent >= 60:
+            rank = "🌀 Edging Enthusiast"
+            comment = "You've been here before. And stayed."
+            emoji = "🌀"
+        elif percent >= 50:
+            rank = "😵‍💫 Session Starter"
+            comment = "We see you. And so does your browser history."
+            emoji = "😵‍💫"
+        elif percent >= 40:
+            rank = "😶‍🌫️ Goon Initiate"
+            comment = "You've entered the path of the goon."
+            emoji = "😶‍🌫️"
+        elif percent >= 30:
+            rank = "😳 Soft Stroker"
+            comment = "A bit of motion detected... tread carefully."
+            emoji = "😳"
+        elif percent >= 20:
+            rank = "🫣 Curious Clicker"
+            comment = "Mild curiosity. You’ve opened the tab."
+            emoji = "🫣"
+        elif percent >= 10:
+            rank = "🙈 Mild Observer"
+            comment = "You peek, but you don’t participate... yet."
+            emoji = "🙈"
+        else:
+            rank = "🧊 Ice-Hearted Monk"
+            comment = "Zero goon vibes detected. Cold as steel."
+            emoji = "🧊"
 
-    embed = discord.Embed(
-        title="🧠 Gooner Intensity Scanner",
-        description=f"{user.mention} is gooning at **{percent}%** level!\n`{bar}`",
-        color=discord.Color.purple(),
-    )
-    embed.add_field(name="Rank", value=rank, inline=True)
-    embed.add_field(name="Analysis", value=comment, inline=False)
-    embed.set_footer(text="Don't hate the goon, hate the game.")
-    message = await ctx.send(embed=embed)
-    await message.add_reaction(emoji)
+        embed = discord.Embed(
+            title="🧠 Gooner Intensity Scanner",
+            description=f"{user.mention} is gooning at **{percent}%** level!\n`{bar}`",
+            color=discord.Color.purple(),
+        )
+        embed.add_field(name="Rank", value=rank, inline=True)
+        embed.add_field(name="Analysis", value=comment, inline=False)
+        embed.set_footer(text="Don't hate the goon, hate the game.")
+        message = await ctx.send(embed=embed)
+        await message.add_reaction(emoji)
 
-@commands.command()
-async def fullscan(self, ctx, user1: discord.Member, user2: discord.Member):
-    gooner_percent = random.randint(0, 100)
-    simp_percent = random.randint(0, 100)
-    ship_percent = random.randint(0, 100)
+    @commands.command()
+    async def fullscan(self, ctx, user1: discord.Member, user2: discord.Member):
+        gooner_percent = random.randint(0, 100)
+        simp_percent = random.randint(0, 100)
+        ship_percent = random.randint(0, 100)
 
-    gooner_bar = get_progress_bar(gooner_percent)
-    simp_bar = get_progress_bar(simp_percent)
-    ship_bar = get_progress_bar(ship_percent)
+        gooner_bar = get_progress_bar(gooner_percent)
+        simp_bar = get_progress_bar(simp_percent)
+        ship_bar = get_progress_bar(ship_percent)
 
-    average_percent = (gooner_percent + simp_percent + ship_percent) // 3
-    overall_bar = get_progress_bar(average_percent)
+        average_percent = (gooner_percent + simp_percent + ship_percent) // 3
+        overall_bar = get_progress_bar(average_percent)
 
-    final_emoji = (
-        "🔥" if average_percent >= 75 else "💤" if average_percent < 30 else "😬"
-    )
+        final_emoji = (
+            "🔥" if average_percent >= 75 else "💤" if average_percent < 30 else "😬"
+        )
 
-    embed = discord.Embed(
-        title="📊 Full Degeneracy Scan",
-        description=f"Target: **{user1.mention}**\nPartner: **{user2.mention}**",
-        color=discord.Color.gold(),
-    )
+        embed = discord.Embed(
+            title="📊 Full Degeneracy Scan",
+            description=f"Target: **{user1.mention}**\nPartner: **{user2.mention}**",
+            color=discord.Color.gold(),
+        )
 
-    embed.add_field(
-        name="🧠 Gooner Rating",
-        value=f"`{gooner_bar}` **{gooner_percent}%**",
-        inline=False,
-    )
-    embed.add_field(
-        name="😳 Simp Rating", value=f"`{simp_bar}` **{simp_percent}%**", inline=False
-    )
-    embed.add_field(
-        name="💘 Ship Compatibility",
-        value=f"{user1.mention} + {user2.mention} = **{ship_percent}%**\n`{ship_bar}`",
-        inline=False,
-    )
-    embed.add_field(
-        name="📈 Overall Degeneracy Score",
-        value=f"`{overall_bar}` **{average_percent}%**",
-        inline=False,
-    )
+        embed.add_field(
+            name="🧠 Gooner Rating",
+            value=f"`{gooner_bar}` **{gooner_percent}%**",
+            inline=False,
+        )
+        embed.add_field(
+            name="😳 Simp Rating", value=f"`{simp_bar}` **{simp_percent}%**", inline=False
+        )
+        embed.add_field(
+            name="💘 Ship Compatibility",
+            value=f"{user1.mention} + {user2.mention} = **{ship_percent}%**\n`{ship_bar}`",
+            inline=False,
+        )
+        embed.add_field(
+            name="📈 Overall Degeneracy Score",
+            value=f"`{overall_bar}` **{average_percent}%**",
+            inline=False,
+        )
 
-    embed.set_footer(text="Science doesn't lie. Mostly.")
-    embed.set_thumbnail(url=user1.display_avatar.url)
+        embed.set_footer(text="Science doesn't lie. Mostly.")
+        embed.set_thumbnail(url=user1.display_avatar.url)
 
-    message = await ctx.send(embed=embed)
-    await message.add_reaction(final_emoji)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction(final_emoji)
 
 async def setup(bot):
     await bot.add_cog(FunCommands(bot))
