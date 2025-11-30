@@ -1,3 +1,32 @@
+"""
+====================================================================================================
+VPanda & VPanda Studio © 2024-2025 All Rights Reserved
+Official Site: https://vezyyy.github.io/VPanda/
+
+IMPORTANT NOTICE:
+
+All code, modules, commands, and concepts included in this project are created as part of the 
+VPanda & VPanda Studio development concept. This project represents proprietary work and is the 
+intellectual property of VPanda Studio.
+
+If you wish to reuse, adapt, or incorporate any parts, modules, or solutions from this project into 
+your own work, you MUST give proper attribution to VPanda Studio and clearly indicate that the 
+original idea or implementation comes from this source. Failure to provide attribution may 
+constitute a violation of intellectual property rights.
+
+For more detailed information about usage rights, limitations, and licensing, please consult 
+the LICENSE file included in this project.
+
+Thank you for respecting the work and creativity of the VPanda & VPanda Studio team.
+====================================================================================================
+"""
+
+
+# In update 7.0.0 - Added 24 Modular Commands for PandOS System | 30.11.2025
+# Old Command are extracted to separate files in PandOS_Commands folder for better modularity and easier maintenance.
+# Some Def functions are moved to PandOS_functions.py for better organization.
+
+# PandOS Main File
 import discord
 from discord.ext import commands
 import random
@@ -10,13 +39,7 @@ import re
 import logging
 from PandOS_greetings_data import greetings, conversations 
 from BSOG_Team import team_points 
-from PandOS_Config import (
-    CHAIN_WORDS_CHANNEL_ID,
-    PARTNERSHIP_ROLE_ID,
-    SERVERS_MESSAGES_CHANNEL_ID,
-    NEW_USER_CHANNEL_ID,
-    PROTECTED_CHANNELS_IDS,
-)
+import PandOS_Config # Private config file with tokens and IDs | User your discord bot token here and other IDs
 import importlib
 import os
 import json 
@@ -27,11 +50,17 @@ from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 from io import BytesIO
 
+# -------------------------------------------------------------------------------
+#################################################################################
+import PandOS_functions
+#################################################################################
+# -------------------------------------------------------------------------------
+
 #################################################################################
 
 # BUILD INFO
-# VEZYY BY VPanda & VPanda Studio
-# VERSION 6.1.8 - 29.11.2025 Steam Sales Tracker Update
+# VEZYY BY VPanda & VPanda Studio | Commands Modular Update ✅
+# VERSION 7.0.0 - 30.11.2025 
 
 #################################################################################
 
@@ -43,7 +72,7 @@ current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 
 # Bot info
 BOT_STATUS = "Online"  
-BOT_VERSION = "6.1.8" 
+BOT_VERSION = "7.0.0" 
 
 #################################################################################
 
@@ -67,12 +96,12 @@ INVITE_CHANNEL_ID = PandOS_Config.INVITE_CHANNEL_ID
 VERIFY_ROLE_ID = PandOS_Config.VERIFY_ROLE_ID
 LOG_CHANNEL_ID = PandOS_Config.LOG_CHANNEL_ID
 SAY_USER_ID = PandOS_Config.SAY_USER_ID
-# Channel ID where media will be shared
 MEDIA_SHARE_CHANNEL_ID = PandOS_Config.MEDIA_SHARE_CHANNEL_ID
 TARGET_MEDIA_CHANNEL_ID = PandOS_Config.TARGET_MEDIA_CHANNEL_ID
 PARTNERSHIP_ROLE_ID = PandOS_Config.PARTNERSHIP_ROLE_ID
 GENERAL_CHANNEL_ID = PandOS_Config.GENERAL_CHANNEL_ID
 VERIFY_CATEGORY_ID = PandOS_Config.VERIFY_CATEGORY_ID
+DISCORD_CHANNEL_ID_STEAM_SALES = PandOS_Config.DISCORD_CHANNEL_ID_STEAM_SALES
 RULES_LINK = "https://vezyyy.github.io/BetterSideOfGaming/rules.html"
 
 #################################################################################
@@ -89,9 +118,6 @@ accepted_rules = set()
 # URL Steam API for featured categories
 STEAM_API_URL = "https://store.steampowered.com/api/featuredcategories"
 
-# Steam sales Discord channel ID
-DISCORD_CHANNEL_ID_STEAM_SALES = 1295000576211292212 
-
 #################################################################################
 
 # Setting up intents
@@ -105,11 +131,6 @@ intents.voice_states = True
 
 # Initialize the bot
 bot = commands.Bot(command_prefix="$", intents=intents)
-
-#################################################################################
-
-# Dictionary to store verification codes
-verification_codes = {}
 
 #################################################################################
 
@@ -1881,69 +1902,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 #################################################################################
 
-# Warnings Defs
-
-# Path to warnings file
-WARNINGS_FILE = "warnings.json"
-
-# Function to load warnings data
-
-def load_warnings():
-    if not os.path.exists(WARNINGS_FILE):
-        with open(WARNINGS_FILE, "w") as f:
-            json.dump({}, f)
-        return {}
-
-    try:
-        with open(WARNINGS_FILE, "r") as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        print("Error: The warnings file is corrupted. Reinitializing...")
-        with open(WARNINGS_FILE, "w") as f:
-            json.dump({}, f)
-        return {}
-
-
-# Function to save warnings data
-
-def save_warnings(warnings_data):
-    with open(WARNINGS_FILE, "w") as f:
-        json.dump(warnings_data, f, indent=4)
-
-
-# Function to add a warning
-
-def add_warning(user_id, reason):
-    warnings_data = load_warnings()
-
-    if str(user_id) in warnings_data:
-        warnings_data[str(user_id)]["count"] += 1
-        warnings_data[str(user_id)]["reasons"].append(reason)
-    else:
-        warnings_data[str(user_id)] = {"count": 1, "reasons": [reason]}
-
-    save_warnings(warnings_data)
-    return warnings_data[str(user_id)]["count"]
-
-
-# Function to get the number of warnings
-
-def get_warnings(user_id):
-    warnings_data = load_warnings()
-    return warnings_data.get(str(user_id), {"count": 0, "reasons": []})["count"]
-
-
-# Function to reset warnings
-
-def reset_warnings(user_id):
-    warnings_data = load_warnings()
-    if str(user_id) in warnings_data:
-        del warnings_data[str(user_id)]
-        save_warnings(warnings_data)
-
-
-#################################################################################
-
 # TEAMS FUNCTIONS
 
 # Configuratiion for logging
@@ -2230,12 +2188,33 @@ def get_conversation_response(message, lang):
 
 #################################################################################
 
+# Function to load command modules dynamically from the commands directory
+
+async def load_commands():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    COMMANDS_DIR = os.path.join(BASE_DIR, "commands")
+
+    for file in os.listdir(COMMANDS_DIR):
+        if not file.endswith(".py"):
+            print(f"Skipped non-Python file in commands directory: {file}")
+            continue
+
+        try:
+            await bot.load_extension(f"commands.{file[:-3]}")
+            print(f"BOT Loaded command module: {file}")
+        except Exception as e:
+            print(f"❌ Failed to load command module {file}: {type(e).__name__} - {e}")
+        
+
+#################################################################################
+
 
 @bot.event
 async def on_ready():
     start_time = time.time()
     periodic_save.start()
     grant_voice_xp.start()
+    await load_commands()
     send_steam_sales.start()  # Start the Steam sales task
     update_pandocoin_rate.start()
 
@@ -2243,8 +2222,8 @@ async def on_ready():
 
     system_message = (
         f"### [PandOS - Version: {BOT_VERSION}]\n\n"
-        "** [PandOS - 29.11.2025]**\n"
-        "** [PandOS - Steam Sales Futuristic Update]**\n"
+        "** [PandOS - 30.11.2025]**\n"
+        "** [PandOS - Commands Modular Update ✅]**\n"
         "** [PandOS - Creator: Vezyy | VPanda]**\n\n"
         "🖥️ **▬▬▬ PandOS System Startup ▬▬▬**\n\n"
         "🔧 **PandOS Package** has been launched.\n"
@@ -2342,357 +2321,6 @@ async def report_bug(ctx, *, reason: str):
 
 #################################################################################
 
-############################
-# FUNNY SERVER COMMANDS
-############################
-
-# BONK COMMAND
-# -----------------
-
-
-@bot.command()
-async def bonk(ctx, user: discord.Member):
-    gify = [
-        "https://tenor.com/view/vorzek-vorzneck-oglg-og-lol-gang-gif-24901093",
-        "https://tenor.com/view/bonk-v%C3%A0o-m%E1%BA%B7t-c%C3%A1i-c%C3%A1m-bonk-anime-bonk-meme-bonk-dog-gif-26069974",
-        "https://tenor.com/view/bonk-gif-19410756",
-        "https://tenor.com/view/bubu-bonk-bubu-dudu-gif-8932107540415697346",
-        "https://tenor.com/view/bonk-gif-13392138837084579216",
-        "https://tenor.com/view/cat-cat-bonk-bonk-cat-attack-white-cat-bonk-camera-gif-12579285308205623581",
-        "https://tenor.com/view/bonk-hurt-pain-gif-19380087",
-        "https://tenor.com/view/dog-enforcement-agency-dea-on-solana-dog-meme-solana-blockchain-meme-wif-bitcoin-eth-pumpfun-crypto-meme-gif-460534289763482698",
-    ]
-
-    bonkujacy = ctx.author.mention
-    bonkowany = user.mention
-    gif = random.choice(gify)
-    gif_spoiler = f"{gif}"
-
-    await ctx.send(f"{bonkujacy} bonking you! {bonkowany}!\n{gif_spoiler}")
-
-
-# SLAP COMMAND
-# -----------------
-
-
-@bot.command()
-async def slap(ctx, user: discord.Member):
-    gifs = [
-        "https://tenor.com/view/shut-up-stfu-shut-your-mouth-slap-slapping-gif-8050553153066707611",
-        "https://tenor.com/view/powerslap-slap-ko-knockout-slap-huge-slap-big-slap-gif-7471918422486227772",
-        "https://tenor.com/view/batman-robin-slap-cachetada-meme-cachetazo-gif-14588588888076113146",
-        "https://tenor.com/view/blu-zushi-black-and-white-emotes-gif-13851867247344432124",
-        "https://tenor.com/view/slap-gif-20040176",
-        "https://tenor.com/view/penguin-slap-gif-5263949288532448516",
-        "https://tenor.com/view/taiga-toradora-fast-slap-slap-baka-gif-11264049955690132886",
-    ]
-    await ctx.send(
-        f"{ctx.author.mention} slapped {user.mention}! 👋\n{random.choice(gifs)}"
-    )
-
-
-# HUG COMMAND
-# -----------------
-
-
-@bot.command()
-async def hug(ctx, user: discord.Member):
-    gifs = [
-        "https://tenor.com/view/cat-gif-6892218099699146160",
-        "https://tenor.com/view/hug-hugs-cuddle-gif-17754615575577561160",
-        "https://tenor.com/view/don-gif-9520776680112053549",
-        "https://tenor.com/view/mocha-and-milk-bears-milk-mocha-cuddle-squeeze-gif-7102673578086768359",
-        "https://tenor.com/view/milk-mocha-milkandmochabears-hug-gif-2028452320346344814",
-        "https://tenor.com/view/gm-gif-14332100165411847198",
-        "https://tenor.com/view/j3pot2-gif-2557771429576618217",
-    ]
-    await ctx.send(
-        f"{ctx.author.mention} gives a big hug to {user.mention}! 🤗\n{random.choice(gifs)}"
-    )
-
-
-# KILL COMMAND
-# -----------------
-
-@bot.command()
-async def kill(ctx, user: discord.Member):
-    deaths = [
-        f"{user.mention} got obliterated by a stampede of rubber ducks shooting lasers from their eggs. 🥚🔫🦆",
-        f"{user.mention} was folded into a burrito by sentient IKEA manuals. 🌯📘",
-        f"{user.mention} tripped over a quantum banana and fell into the backrooms of reality. 🍌🌀",
-        f"{user.mention} got reverse-born by a potato priest chanting in Latin. 🥔✝️",
-        f"{user.mention} was 360 no-scoped by a toaster with WiFi. 🔫🍞📶",
-        f"{user.mention} was abducted by cows riding UFOs powered by memes. 👽🐄😂",
-        f"{user.mention} exploded after hearing the forbidden Shrek dub in reverse. 💚🔊",
-        f"{user.mention} got yeeted into the 4th dimension by a screaming goose with a frying pan. 🪿🥄",
-        f"{user.mention} was compressed into a JPEG by ancient TikTok magic. 🧙‍♂️📸",
-        f"{user.mention} got deleted by a Windows XP update that never finished installing. 💀💾",
-        f"{user.mention} was hypnotized by dancing pickles and walked into the sun. 🥒🌞",
-        f"{user.mention} lost a staring contest with a cursed Furby and ceased to exist. 👁️👁️",
-        f"{user.mention} was kissed by a walrus with nuclear lips. 💋🐋💥",
-        f"{user.mention} merged with a gopnik dimension and became eternal slav energy. 🧢🚬",
-        f"{user.mention} was bonked into oblivion by a sentient frying pan shouting “BONK!” 🔨👻",
-        f"{user.mention} got evaporated by a Google Doc that learned how to scream. 📄📢",
-        f"{user.mention} was hugged too hard by a spaghetti monster. 🍝❤️",
-        f"{user.mention} was devoured by a black hole made entirely of dad jokes. 🕳️😅",
-        f"{user.mention} got Rickrolled so hard they entered the shadow realm. 🎵🚪",
-        f"{user.mention} was crushed to death by the mighty thighs of BONCAJ674. 💪🍑",
-        f"{user.mention} got fricked to death by a horny beetroot named BARSZCZU. 🥵🥄🌶️",
-    ]
-
-    gifs = [
-        "https://tenor.com/view/kill-me-gif-19956322",
-        "https://tenor.com/view/gun-shooting-dont-be-a-menace-funny-lmao-gif-6119299",
-        "https://tenor.com/view/gun-gif-22839895",
-        "https://tenor.com/view/rambo-shooting-gif-23980108",
-        "https://tenor.com/view/fireworks-4th-of-july-fourth-of-july-drunk-man-shooting-fireworks-gif-6998278431839877101",
-        "https://tenor.com/view/atheer-gun-michael-scott-the-office-ath-gif-23470765",
-        "https://tenor.com/view/shooting-fire-gun-bang-falling-down-gif-14742266",
-        "https://tenor.com/view/jumpinpenguin-carry-jp-jp-carry-jumpinpenguin19-official-jp-carry-gif-1962217404091130615",
-    ]
-
-    embed = discord.Embed(
-        title="💀 Absurd Kill Executed!",
-        description=random.choice(deaths),
-        color=discord.Color.red(),
-    )
-    embed.set_footer(text=f"{ctx.author.display_name} tried to kill them...")
-
-    await ctx.send(embed=embed)
-    await ctx.send(f"{random.choice(gifs)}")
-
-
-# PROGRESS BAR
-# -----------------
-
-
-def get_progress_bar(percent):
-    total_blocks = 10
-    filled_blocks = int(percent / 10)
-    empty_blocks = total_blocks - filled_blocks
-    return "█" * filled_blocks + "░" * empty_blocks
-
-
-# SHIP COMMAND
-# -----------------
-
-
-@bot.command()
-async def ship(ctx, user1: discord.Member, user2: discord.Member):
-    score = random.randint(0, 100)
-    bar = get_progress_bar(score)
-
-    if score >= 90:
-        comment = "💘 Soulmates. Get a room already!"
-        emoji = "💘"
-    elif score >= 80:
-        comment = "💖 True love! That spark is real."
-        emoji = "💖"
-    elif score >= 70:
-        comment = "💕 Super compatible – you’d make a cute couple."
-        emoji = "💕"
-    elif score >= 60:
-        comment = "💞 Something is definitely there."
-        emoji = "💞"
-    elif score >= 50:
-        comment = "💗 Getting warm. This could work!"
-        emoji = "💗"
-    elif score >= 40:
-        comment = "💬 Maybe after a few dates..."
-        emoji = "💬"
-    elif score >= 30:
-        comment = "💔 Friends with potential, but not quite there."
-        emoji = "💔"
-    elif score >= 20:
-        comment = "❄️ Just friends. Or maybe not even that..."
-        emoji = "❄️"
-    elif score >= 10:
-        comment = "🚧 Compatibility error. Please reboot."
-        emoji = "🚧"
-    else:
-        comment = "🚫 Not meant to be. Abort mission!"
-        emoji = "🚫"
-
-    embed = discord.Embed(
-        title="💘 Shipping Calculator",
-        description=f"{user1.mention} + {user2.mention} = **{score}%** match!\n`{bar}`",
-        color=discord.Color.purple(),
-    )
-    embed.add_field(name="Result", value=comment)
-    embed.set_footer(text="Love is in the code 💻❤️")
-    message = await ctx.send(embed=embed)
-    await message.add_reaction(emoji)
-
-
-# SIMP COMMAND
-# -----------------
-
-
-@bot.command()
-async def simp(ctx, user: discord.Member):
-    percent = random.randint(0, 100)
-    bar = get_progress_bar(percent)
-
-    if percent >= 90:
-        comment = "🫡 The ultimate simp. Knees permanently bent."
-        emoji = "🫡"
-    elif percent >= 80:
-        comment = "🚨 Major simp alert. Get help."
-        emoji = "🚨"
-    elif percent >= 70:
-        comment = "😳 You're simping a bit too hard."
-        emoji = "😳"
-    elif percent >= 60:
-        comment = "😩 High simp energy. Take a break."
-        emoji = "😩"
-    elif percent >= 50:
-        comment = "😬 Slightly down bad..."
-        emoji = "😬"
-    elif percent >= 40:
-        comment = "😅 Some simp traces detected."
-        emoji = "😅"
-    elif percent >= 30:
-        comment = "🙂 Not too simpy. Could go either way."
-        emoji = "🙂"
-    elif percent >= 20:
-        comment = "🧊 Almost clean. Stay strong."
-        emoji = "🧊"
-    elif percent >= 10:
-        comment = "💤 Simp levels nearly undetectable."
-        emoji = "💤"
-    else:
-        comment = "✅ 100% certified non-simp. Respect."
-        emoji = "✅"
-
-    embed = discord.Embed(
-        title="😳 Simp Scanner",
-        description=f"{user.mention} is simping at **{percent}%** level!\n`{bar}`",
-        color=discord.Color.blurple(),
-    )
-    embed.add_field(name="Analysis", value=comment, inline=False)
-    embed.set_footer(text="No judgement... maybe.")
-    message = await ctx.send(embed=embed)
-    await message.add_reaction(emoji)
-
-
-# GOONER COMMAND
-# -----------------
-
-@bot.command()
-async def gooner(ctx, user: discord.Member):
-    percent = random.randint(0, 100)
-    bar = get_progress_bar(percent)
-
-    if percent == 100:
-        rank = "🧠 Infinite Loop Gooner"
-        comment = "You've reached the peak. You're not even gooning — you **are** the goon. The tab is now your home screen."
-        emoji = "🧠"
-    elif percent >= 90:
-        rank = "👑 Gooner Master Supreme"
-        comment = "You have ascended. There's no coming back."
-        emoji = "👑"
-    elif percent >= 80:
-        rank = "🚨 Goon General"
-        comment = "You've lost the plot. Absolute madlad."
-        emoji = "🚨"
-    elif percent >= 70:
-        rank = "💀 Tab Collector"
-        comment = "15 tabs open. You’re in deep."
-        emoji = "💀"
-    elif percent >= 60:
-        rank = "🌀 Edging Enthusiast"
-        comment = "You've been here before. And stayed."
-        emoji = "🌀"
-    elif percent >= 50:
-        rank = "😵‍💫 Session Starter"
-        comment = "We see you. And so does your browser history."
-        emoji = "😵‍💫"
-    elif percent >= 40:
-        rank = "😶‍🌫️ Goon Initiate"
-        comment = "You've entered the path of the goon."
-        emoji = "😶‍🌫️"
-    elif percent >= 30:
-        rank = "😳 Soft Stroker"
-        comment = "A bit of motion detected... tread carefully."
-        emoji = "😳"
-    elif percent >= 20:
-        rank = "🫣 Curious Clicker"
-        comment = "Mild curiosity. You’ve opened the tab."
-        emoji = "🫣"
-    elif percent >= 10:
-        rank = "🙈 Mild Observer"
-        comment = "You peek, but you don’t participate... yet."
-        emoji = "🙈"
-    else:
-        rank = "🧊 Ice-Hearted Monk"
-        comment = "Zero goon vibes detected. Cold as steel."
-        emoji = "🧊"
-
-    embed = discord.Embed(
-        title="🧠 Gooner Intensity Scanner",
-        description=f"{user.mention} is gooning at **{percent}%** level!\n`{bar}`",
-        color=discord.Color.purple(),
-    )
-    embed.add_field(name="Rank", value=rank, inline=True)
-    embed.add_field(name="Analysis", value=comment, inline=False)
-    embed.set_footer(text="Don't hate the goon, hate the game.")
-    message = await ctx.send(embed=embed)
-    await message.add_reaction(emoji)
-
-
-# FULLSCAN COMMAND
-# -----------------
-
-
-@bot.command()
-async def fullscan(ctx, user1: discord.Member, user2: discord.Member):
-    gooner_percent = random.randint(0, 100)
-    simp_percent = random.randint(0, 100)
-    ship_percent = random.randint(0, 100)
-
-    gooner_bar = get_progress_bar(gooner_percent)
-    simp_bar = get_progress_bar(simp_percent)
-    ship_bar = get_progress_bar(ship_percent)
-
-    average_percent = (gooner_percent + simp_percent + ship_percent) // 3
-    overall_bar = get_progress_bar(average_percent)
-
-    final_emoji = (
-        "🔥" if average_percent >= 75 else "💤" if average_percent < 30 else "😬"
-    )
-
-    embed = discord.Embed(
-        title="📊 Full Degeneracy Scan",
-        description=f"Target: **{user1.mention}**\nPartner: **{user2.mention}**",
-        color=discord.Color.gold(),
-    )
-
-    embed.add_field(
-        name="🧠 Gooner Rating",
-        value=f"`{gooner_bar}` **{gooner_percent}%**",
-        inline=False,
-    )
-    embed.add_field(
-        name="😳 Simp Rating", value=f"`{simp_bar}` **{simp_percent}%**", inline=False
-    )
-    embed.add_field(
-        name="💘 Ship Compatibility",
-        value=f"{user1.mention} + {user2.mention} = **{ship_percent}%**\n`{ship_bar}`",
-        inline=False,
-    )
-    embed.add_field(
-        name="📈 Overall Degeneracy Score",
-        value=f"`{overall_bar}` **{average_percent}%**",
-        inline=False,
-    )
-
-    embed.set_footer(text="Science doesn't lie. Mostly.")
-    embed.set_thumbnail(url=user1.display_avatar.url)
-
-    message = await ctx.send(embed=embed)
-    await message.add_reaction(final_emoji)
-
-
 # GOONER OF THE DAY COMMAND
 # ----------------------------
 
@@ -2774,93 +2402,6 @@ async def gooner_reset_check(guild):
         gooner_reset_check.stop()
 
 #################################################################################
-# PandOS Call View with Buttons
-# This view allows users to respond to a call invitation with buttons.
-
-# ---------------------
-# CALL VIEW WITH BUTTONS
-# ---------------------
-
-class CallView(discord.ui.View):
-    def __init__(self, author: discord.Member, channel: discord.VoiceChannel):
-        super().__init__(timeout=60)
-        self.author = author
-        self.channel = channel
-
-    @discord.ui.button(label="🟢 I'm joining", style=discord.ButtonStyle.green)
-    async def join_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        member = self.channel.guild.get_member(interaction.user.id)
-        if member is None:
-            await interaction.response.send_message("❌ Could not find your account on the server.", ephemeral=True)
-            return
-        try:
-            if member.voice is not None:
-                await member.move_to(self.channel)
-                await interaction.response.send_message(
-                    f"✅ You've been moved to **{self.channel.name}**!", ephemeral=True
-                )
-                await self.author.send(f"✅ {member.mention} has joined your voice channel!")
-            else:
-                await interaction.response.send_message(
-                    f"🟡 You responded positively! Please join **{self.channel.name}** manually.", ephemeral=True
-                )
-                await self.author.send(f"🟡 {member.mention} reacted positively and may join soon.")
-        except discord.Forbidden:
-            await interaction.response.send_message("❌ I don't have permission to move you.", ephemeral=True)
-        except Exception as e:
-            await interaction.response.send_message("❌ An error occurred while trying to move you.", ephemeral=True)
-            print(e)
-
-    @discord.ui.button(label="🔴 I'm busy", style=discord.ButtonStyle.red)
-    async def busy_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message("🔕 Noted! You are busy.", ephemeral=True)
-        try:
-            await self.author.send(f"🔴 {interaction.user.mention} is busy and won’t join right now.")
-        except discord.Forbidden:
-            pass
-
-# ---------------------
-# CALL COMMAND
-# ---------------------
-
-@bot.command()
-async def call(ctx, user: discord.Member):
-    if ctx.author.voice is None:
-        await ctx.send("🔊 You must be in a voice channel to use this command.")
-        return
-
-    voice_channel = ctx.author.voice.channel
-
-    embed = discord.Embed(
-        title="📞 Game Invite!",
-        description=f"{ctx.author.mention} is inviting {user.mention} to join the voice channel **{voice_channel.name}**!",
-        color=discord.Color.green()
-    )
-    embed.set_thumbnail(url=ctx.author.display_avatar.url)
-    embed.set_footer(text="Click one of the buttons in your DM to respond.")
-
-    await ctx.send(embed=embed)
-
-    view = CallView(ctx.author, voice_channel)
-
-    try:
-        await user.send("📢 You've been invited to a game! Respond below:", view=view)
-    except discord.Forbidden:
-        await ctx.send(f"❌ I can't send a private message to {user.mention}. Make sure their DMs are enabled.")
-
-
-#################################################################################
-
-
-# $ping - Check bot latency
-
-@bot.command()
-async def ping(ctx):
-    latency = round(bot.latency * 1000) 
-    await ctx.send(f"Pong! Latency: {latency}ms")
-
-
-#################################################################################
 
 
 @bot.command()
@@ -2879,426 +2420,6 @@ async def pvsend(ctx, user_id: int, *, message: str):
 #################################################################################
 
 
-# $uptime - shows bot uptime
-
-@bot.command()
-async def uptime(ctx):
-    bot_creation_time = bot.user.created_at.replace(tzinfo=datetime.timezone.utc)
-
-    current_time = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
-
-    delta_uptime = current_time - bot_creation_time
-
-    await ctx.send(f"Bot has been online for: {delta_uptime}")
-
-
-#################################################################################
-
-
-# $serverinfo - shows detailed info about the server
-
-@bot.command()
-async def serverinfo(ctx):
-    guild = ctx.guild
-    embed = discord.Embed(
-        title=f"{guild.name} Server Info",
-        description="Information about the server.",
-        color=discord.Color.green(),
-    )
-    embed.add_field(name="Server Name", value=guild.name, inline=False)
-    embed.add_field(name="Server ID", value=guild.id, inline=False)
-    embed.add_field(name="Member Count", value=guild.member_count, inline=False)
-    embed.add_field(
-        name="Created At", value=guild.created_at.strftime("%b %d, %Y"), inline=False
-    )
-    await ctx.send(embed=embed)
-
-
-#################################################################################
-
-
-# $userinfo <user> - shows detailed info about a user
-
-@bot.command()
-async def userinfo(ctx, user: discord.User):
-    """Wyświetla szczegółowe informacje o użytkowniku"""
-
-    member = ctx.guild.get_member(user.id)
-
-    if member is None:
-        await ctx.send(f"{user} is not a member of this server.")
-        return
-
-    embed = discord.Embed(
-        title=f"User Info: {user}",
-        description=f"Information about {user.mention}",
-        color=discord.Color.blue(),
-    )
-
-    embed.add_field(name="User ID", value=user.id, inline=False)
-    embed.add_field(
-        name="Account Created",
-        value=user.created_at.strftime("%b %d, %Y"),
-        inline=False,
-    )
-    embed.add_field(
-        name="Joined Server", value=member.joined_at.strftime("%b %d, %Y"), inline=False
-    )
-    embed.add_field(name="Status", value=str(member.status).title(), inline=False)
-
-    embed.add_field(
-        name="Nickname", value=member.nick if member.nick else "None", inline=False
-    )
-    embed.add_field(name="Highest Role", value=member.top_role.name, inline=False)
-    embed.add_field(name="Is Bot?", value="Yes" if user.bot else "No", inline=False)
-
-    if member.activity:
-        embed.add_field(name="Activity", value=str(member.activity), inline=False)
-    else:
-        embed.add_field(name="Activity", value="No current activity", inline=False)
-
-    embed.set_thumbnail(url=user.avatar.url)
-
-    roles = [role.name for role in member.roles]
-    embed.add_field(name="Roles", value=", ".join(roles), inline=False)
-
-    await ctx.send(embed=embed)
-
-
-#################################################################################
-
-
-# $ban <user> - ban user
-
-@bot.command()
-@commands.has_permissions(ban_members=True)
-async def ban(ctx, user: discord.User, reason: str = "No reason provided"):
-    await ctx.guild.ban(user, reason=reason)
-    await ctx.send(f"{user} has been banned for: {reason}")
-
-
-#################################################################################
-
-
-# $kick <user> - kick user
-
-@bot.command()
-@commands.has_permissions(kick_members=True)
-async def kick(ctx, user: discord.User, reason: str = "No reason provided"):
-    await ctx.guild.kick(user, reason=reason)
-    await ctx.send(f"{user} has been kicked for: {reason}")
-
-
-#################################################################################
-
-
-# $mute <user> <time> <reason> - mute user for a specified time
-
-@bot.command()
-@commands.has_permissions(manage_roles=True)
-async def mute(
-    ctx, user: discord.Member, time: str, reason: str = "No reason provided"
-):
-    """Mute a user for a specified amount of time (in minutes)"""
-    try:
-        time = int(time) 
-    except ValueError:
-        await ctx.send(
-            "Invalid time format. Please enter a valid number for the duration in minutes."
-        )
-        return
-
-    if time <= 0:
-        await ctx.send("Time must be a positive number.")
-        return
-
-    mute_role = discord.utils.get(ctx.guild.roles, name="Muted")
-
-    if not mute_role:
-        mute_role = await ctx.guild.create_role(
-            name="Muted", reason="Muted role does not exist."
-        )
-
-        for channel in ctx.guild.text_channels:
-            await channel.set_permissions(mute_role, speak=False, send_messages=False)
-
-    if mute_role in user.roles:
-        await ctx.send(f"{user} is already muted.")
-        return
-    
-    await user.add_roles(mute_role, reason=reason)
-
-    embed = discord.Embed(
-        title="🔇 User Muted",
-        description=f"**{user}** has been muted for **{time} minutes**.",
-        color=discord.Color.red(),
-    )
-    embed.add_field(name="📝 Reason", value=reason, inline=False)
-    embed.add_field(name="🕒 Muted by", value=ctx.author, inline=False)
-    embed.add_field(name="⏳ Duration", value=f"{time} minutes", inline=False)
-    embed.set_footer(text="Please contact an admin for any questions.")
-    embed.set_thumbnail(url=ctx.guild.icon.url) 
-    embed.set_author(
-        name="PandOS Bot", icon_url=ctx.bot.user.avatar.url
-    ) 
-
-    await ctx.send(embed=embed)
-
-    log_channel = bot.get_channel(
-        1295001133202411531
-    )  
-    if log_channel:
-        await log_channel.send(embed=embed)
-
-    dm_embed = discord.Embed(
-        title="🔕 You have been muted",
-        description=f"Hello **{user.name}**, you have been muted in **{ctx.guild.name}** for **{time} minutes**.\n\n"
-        f"**Reason**: {reason}\n\n"
-        f"⏳ This is a temporary mute. You will be unmuted automatically after the time is up.\n\n"
-        "If you believe this is a mistake or have any questions, please reach out to an administrator.",
-        color=discord.Color.red(),
-    )
-    dm_embed.add_field(name="📝 Muted by", value=f"{ctx.author}", inline=False)
-    dm_embed.set_footer(text="If you have any issues, please contact an administrator.")
-    dm_embed.set_thumbnail(url=ctx.guild.icon.url)  
-    dm_embed.set_author(
-        name="PandOS Bot", icon_url=ctx.bot.user.avatar.url
-    )  
-
-    try:
-        await user.send(embed=dm_embed)
-    except discord.Forbidden:
-        print(f"Unable to send DM to {user.name} as they have DMs disabled.")
-
-    await asyncio.sleep(time * 60) 
-
-    await user.remove_roles(mute_role)
-    await ctx.send(f"{user} has been unmuted.")
-
-
-#################################################################################
-
-
-# Warn Command with JSON storage
-
-@bot.command()
-@commands.has_permissions(kick_members=True)
-async def warn(ctx, user: discord.Member, *, reason: str = "No reason provided"):
-    try:
-        await ctx.message.delete()
-    except discord.NotFound:
-        pass  
-
-    """Warn a user with an optional reason."""
-    warnings_count = add_warning(user.id, reason)
-
-    warn_embed = discord.Embed(
-        title="⚠️ You have been warned",
-        description=f"Hello **{user.name}**, you have been warned in **{ctx.guild.name}**.",
-        color=discord.Color.orange(),
-    )
-    warn_embed.add_field(name="📝 Reason", value=reason, inline=False)
-    warn_embed.add_field(name="🕒 Warned by", value=f"{ctx.author}", inline=False)
-    warn_embed.add_field(
-        name="⚠️ Total Warnings", value=str(warnings_count), inline=False
-    )
-    warn_embed.set_footer(text="This warning will be logged.")
-    warn_embed.set_thumbnail(url=ctx.guild.icon.url)  
-    warn_embed.set_author(
-        name="PandOS Bot", icon_url=ctx.bot.user.avatar.url
-    )  
-    try:
-        await user.send(embed=warn_embed)
-    except discord.Forbidden:
-        print(f"Unable to send DM to {user.name} as they have DMs disabled.")
-
-    log_channel = bot.get_channel(
-        1295001133202411531
-    ) 
-    if log_channel:
-        log_embed = discord.Embed(
-            title="⚠️ User Warned",
-            description=f"**{user}** has been warned.",
-            color=discord.Color.orange(),
-        )
-        log_embed.add_field(name="📝 Reason", value=reason, inline=False)
-        log_embed.add_field(name="🕒 Warned by", value=f"{ctx.author}", inline=False)
-        log_embed.add_field(
-            name="⚠️ Total Warnings", value=str(warnings_count), inline=False
-        )
-        log_embed.set_footer(text="Warning logged automatically.")
-        log_embed.set_thumbnail(url=ctx.guild.icon.url)
-        log_embed.set_author(name="PandOS Bot", icon_url=ctx.bot.user.avatar.url)
-
-        await log_channel.send(embed=log_embed)
-
-    await ctx.send(
-        f"**{user}** has been warned. Reason: {reason} (Total warnings: {warnings_count})"
-    )
-
-
-# Command $warnings - Check user warnings
-
-import json
-
-
-def get_warnings(user_id):
-    """Pobiera ostrzeżenia użytkownika z pliku JSON."""
-    with open("warnings.json", "r", encoding="utf-8") as f:
-        warnings_data = json.load(f)
-
-    return warnings_data.get(
-        str(user_id), {"count": 0, "reasons": []}
-    ) 
-
-
-@bot.command()
-async def warnings(ctx, user: discord.Member):
-    """Sprawdza ostrzeżenia użytkownika i wysyła je w embedzie."""
-
-    warnings_data = get_warnings(user.id) 
-
-    embed = discord.Embed(
-        title=f"⚠️ Warnings for {user.name}", color=discord.Color.orange()
-    )
-    embed.set_thumbnail(url=user.avatar.url if user.avatar else user.default_avatar.url)
-
-    if warnings_data["count"] == 0:
-        embed.description = "✅ This user has no warnings!"
-    else:
-        for index, reason in enumerate(warnings_data["reasons"], 1):
-            embed.add_field(
-                name=f"⚠️ Warning {index}", value=f"**Reason:** {reason}", inline=False
-            )
-
-        embed.set_footer(text=f"Total warnings: {warnings_data['count']}")
-
-    await ctx.send(embed=embed)
-
-
-# Command resetwarnings - Reset user warnings
-
-@bot.command()
-@commands.has_permissions(
-    administrator=True
-) 
-async def resetwarnings(ctx, user: discord.Member):
-    """Reset the warnings for a user."""
-    reset_warnings(user.id)
-    await ctx.send(f"**{user}**'s warnings have been reset.")
-
-# Command Pwarn - Warning by the bot itself
-
-@bot.command()
-@commands.has_permissions(kick_members=True)
-async def Pwarn(ctx, user: discord.Member, *, reason: str = "No reason provided"):
-    """Warn a user with an optional reason (executed by the bot)."""
-
-    warnings_count = add_warning(user.id, reason)
-
-    warn_embed = discord.Embed(
-        title="⚠️ You have been warned",
-        description=f"Hello **{user.name}**, you have been warned in **{ctx.guild.name}**.",
-        color=discord.Color.orange(),
-    )
-    warn_embed.add_field(name="📝 Reason", value=reason, inline=False)
-    warn_embed.add_field(name="🕒 Warned by", value="PandOS Bot", inline=False)
-    warn_embed.add_field(
-        name="⚠️ Total Warnings", value=str(warnings_count), inline=False
-    )
-    warn_embed.set_footer(text="This warning will be logged.")
-    warn_embed.set_thumbnail(url=ctx.guild.icon.url)
-    warn_embed.set_author(name="PandOS Bot", icon_url=ctx.bot.user.avatar.url)
-
-    try:
-        await user.send(embed=warn_embed)
-    except discord.Forbidden:
-        print(f"Unable to send DM to {user.name} as they have DMs disabled.")
-
-    log_channel = bot.get_channel(1295001133202411531) 
-    if log_channel:
-        log_embed = discord.Embed(
-            title="⚠️ User Warned",
-            description=f"**{user}** has been warned.",
-            color=discord.Color.orange(),
-        )
-        log_embed.add_field(name="📝 Reason", value=reason, inline=False)
-        log_embed.add_field(name="🕒 Warned by", value="PandOS Bot", inline=False)
-        log_embed.add_field(
-            name="⚠️ Total Warnings", value=str(warnings_count), inline=False
-        )
-        log_embed.set_footer(text="Warning logged automatically.")
-        log_embed.set_thumbnail(url=ctx.guild.icon.url)
-        log_embed.set_author(name="PandOS Bot", icon_url=ctx.bot.user.avatar.url)
-
-        await log_channel.send(embed=log_embed)
-
-    await ctx.send(
-        f"**{user}** has been warned by PandOS Bot. Reason: {reason} (Total warnings: {warnings_count})"
-    )
-
-
-#################################################################################
-
-
-# $unmute <user> - Delete mute from user
-
-@bot.command()
-@commands.has_permissions(manage_roles=True)
-async def unmute(
-    ctx, user: discord.Member
-):  
-    mute_role = discord.utils.get(
-        ctx.guild.roles, name="Muted"
-    )  
-
-    if not mute_role:
-        await ctx.send("The 'Muted' role does not exist.")
-        return
-
-    if mute_role in user.roles:
-        await user.remove_roles(mute_role, reason="Unmuted by staff")
-        await ctx.send(f"{user} has been unmuted.")
-    else:
-        await ctx.send(f"{user} is not muted.")
-
-
-#################################################################################
-
-# $addrole - Add role to user
-
-@bot.command()
-@commands.has_permissions(manage_roles=True)
-async def addrole(ctx, user: discord.Member, role: discord.Role):
-    """Dodanie roli użytkownikowi"""
-    if role not in user.roles: 
-        await user.add_roles(role)
-        await ctx.send(
-            f"The {role.name} role has been successfully added to {user.mention}."
-        )
-    else:
-        await ctx.send(f"{user.mention} already has the {role.name} role.")
-
-
-#################################################################################
-
-# $removerole - Deleted role from user
-
-@bot.command()
-@commands.has_permissions(manage_roles=True)
-async def removerole(ctx, user: discord.Member, role: discord.Role):
-    """Usuwanie roli od użytkownika"""
-    if role in user.roles:
-        await user.remove_roles(role)
-        await ctx.send(
-            f"The {role.name} role has been successfully removed from {user.mention}."
-        )
-    else:
-        await ctx.send(f"{user.mention} doesn't have the {role.name} role.")
-
-
-#################################################################################
-
 # $twm - Tested welcome message command
 
 @bot.command(name="twm")
@@ -3311,354 +2432,6 @@ async def test_welcome_message(ctx):
     ) 
     await ctx.send(f"Test welcome message has been sent to {ctx.author.mention}.")
 
-
-#################################################################################
-
-# Custom Help Command
-# ---------------------
-
-class UserHelpCommand(commands.DefaultHelpCommand):
-    async def send_bot_help(self, ctx):
-        embed1 = discord.Embed(
-            title="PandOS Bot Help (Part 1)",
-            description="Below are the basic commands you can use:",
-            color=discord.Color.blue(),
-        )
-        embed1.add_field(
-            name="$VerifyMe",
-            value="Receive your verification code in DMs.",
-            inline=False,
-        )
-        embed1.add_field(
-            name="$start <code>",
-            value="Use the code received via `$VerifyMe` to verify yourself.",
-            inline=False,
-        )
-        embed1.add_field(
-            name="$ping",
-            value="Check the bot's latency.",
-            inline=False,
-        )
-        embed1.add_field(
-            name="$uptime",
-            value="Shows the bot's uptime.",
-            inline=False,
-        )
-        await ctx.send(embed=embed1)
-
-        embed2 = discord.Embed(
-            title="PandOS Bot Help (Part 2)",
-            description="Here are some user-related commands:",
-            color=discord.Color.blue(),
-        )
-        embed2.add_field(
-            name="$gambuildjson",
-            value="If you have some problems with gambling system, try using this command to build your gambling.json account in our system.",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$lvl <user>",
-            value="Check the level and XP of a user.",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$toplvl",
-            value="View the top 10 users based on their level and XP.",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$balance",
-            value="Check your current balance of PanDollars ($P).",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$gambling <game> <amount>",
-            value="Play a gambling game with your PanDollars ($P). Choose from games like `jackpot`, `double`, `safe`, and `risky`.",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$roulette <color> <amount>",
-            value="Play the roulette game and test your luck with PanDollars ($P)!",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$russianroulette <amount>",
-            value="Play Russian Roulette with 50% chance of winning! If you win, you'll double your bet, but if you lose, you lose everything.",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$teamrank",
-            value="Check the ranking of teams based on points.",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$topg or $topgambling",
-            value="View the top 10 richest users based on PanDollars ($P) earnings.",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$topl",
-            value="Shortcut to `$toplvl` to view the top 10 users based on their level and XP.",
-            inline=False,
-        )
-
-        embed2.add_field(
-            name="$buyprotection <time_period>",
-            value="Buy protection to prevent being robbed! Choose from:\n"
-            "`1h` - 1 hour protection for 10,000 $P\n"
-            "`24h` - 24 hours protection for 50,000 $P\n"
-            "`7d` - 7 days protection for 250,000 $P\n"
-            "`30d` - 30 days protection for 1,000,000 $P",
-            inline=False,
-        )
-        embed2.add_field(
-            name="$rob <user>",
-            value="Attempt to rob another user! But beware, there are consequences for failed attempts. You can only rob users who aren't currently protected.",
-            inline=False,
-        )
-
-        embed2.add_field(
-            name="$shop",
-            value="Browse the shop and buy various items or services. You can purchase:\n"
-            "`Protection` - Buy protection from robbers\n"
-            "`Upgrades` - Upgrade your stats or items\n"
-            "`Special Items` - Unique items with special benefits",
-            inline=False,
-        )
-
-        embed2.add_field(
-            name="$buy <item>",
-            value="Purchase an item or service from the shop. For example:\n"
-            "`$buy Protection` - Buy protection to prevent robbing\n"
-            "`$buy Upgrade` - Purchase an upgrade for your stats or items",
-            inline=False,
-        )
-
-        embed2.add_field(
-            name="$buyrank <rank_name>",
-            value="Buy a special rank from the server! For example:\n"
-            "`$buyrank VIP` - Purchase the **VIP** rank to enjoy exclusive perks and privileges.",
-            inline=False,
-        )
-
-        embed2.add_field(
-            name="$ranks",
-            value="View the available ranks that you can purchase with PandoCoin!\n"
-            "`$ranks` - Display all the ranks you can buy, along with their prices and benefits.",
-            inline=False,
-        )
-
-        embed2.add_field(
-            name="$pcoin",
-            value="Check the current exchange rate of PandoCoin!\n"
-            "`$pcoin` - View the current rate for PandoCoin in comparison to other currencies.",
-            inline=False,
-        )
-
-        embed2.add_field(
-            name="$exchange",
-            value="Exchange your currency to PandoCoin!\n"
-            "`$exchange <amount>` - Convert your coins to PandoCoin.\n"
-            "Example: `$exchange 100` will convert 100 of your currency to PandoCoin based on the current exchange rate.",
-            inline=False,
-        )
-
-        embed2.add_field(
-            name="$inv",
-            value="Check your inventory and see all the items you've purchased.\n"
-            "Use this command to view items like `Protection`, `Upgrades`, or `Special Items`.",
-            inline=False,
-        )
-
-        await ctx.send(embed=embed2)
-
-        embed3 = discord.Embed(
-            title="PandOS Bot Help (Part 3)",
-            description="Here are some user-related commands:",
-            color=discord.Color.blue(),
-        )
-        embed3.add_field(
-            name="$bonk <@user>",
-            value="Use this command to bonk anyone you want! 🪄",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$kill <@user>",
-            value="Use this command to kill someone in the most absurd and hilarious way! 💀",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$hug <@user>",
-            value="Send a warm virtual hug to someone with a cute gif! 🤗",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$slap <@user>",
-            value="Slap someone playfully with a funny gif! 👋😆",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$simp <@user>",
-            value="Check how much someone is simping with a random percentage! 😳",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$gooner <@user>",
-            value="Check how much someone is gooner with a random percentage! 😳",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$ship <@user1> <@user2>",
-            value="Find out the love compatibility between two users! ❤️",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$fullscan <@user1> <@user2>",
-            value="Get a complete compatibility and personality scan of a user in one detailed report! 🔍",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$gooneroftheday",
-            value="Discover who’s the ultimate gooner of the day with a special shoutout! 👑",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$call <@user>",
-            value="Calls the mentioned user to join your current voice channel and sends them a private notification via PandOS Bot.",
-            inline=False,
-        )
-
-        await ctx.send(embed=embed3)
-
-# Custom Admin Help Command
-# --------------------------
-
-class AdminHelpCommand(commands.DefaultHelpCommand):
-    async def send_bot_help(self, ctx):
-        embed3 = discord.Embed(
-            title="PandOS Bot Help (Admin Commands)",
-            description="These are the administrative commands:",
-            color=discord.Color.red(),
-        )
-        embed3.add_field(
-            name="$ban <user>",
-            value="Ban a user from the server.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$kick <user>",
-            value="Kick a user from the server.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$mute <user> <time>",
-            value="Mute a user for a specific time (in minutes).",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$unmute <user>",
-            value="Unmute a user.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$addrole <user> <role>",
-            value="Add a role to a user.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$removerole <user> <role>",
-            value="Remove a role from a user.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$serverinfo",
-            value="Display server info such as member count, server creation date.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$Pwarn <user> <reason>",
-            value="Warn a user with an optional reason as PandOS (Bot). (Admin only)",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$warnings <user>",
-            value="Check the warnings of a user.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$resetwarnings <user>",
-            value="Reset the warnings of a user.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$twm",
-            value="Test the welcome message.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$ping",
-            value="Check the bot's latency.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$uptime",
-            value="Shows the bot's uptime.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$say <message>",
-            value="Send a message as the bot (Admin only).",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$announcement <message>",
-            value="Send an announcement to all members (Admin only).",
-            inline=False,
-        )
-
-        embed3.add_field(
-            name="$partnership_start (ID)",
-            value="Assign the **Partnership Program** role to a user and send a welcome message to them. This action is available only for admins.\n"
-            "Example: `$$partnership_start 123456789` - Assigns the partnership role to the user with ID 123456789.",
-            inline=False,
-        )
-
-        embed3.add_field(
-            name="$partnership_end (ID)",
-            value="Remove the **Partnership Program** role from a user and send a goodbye message. This action is available only for admins.\n"
-            "Example: `$$partnership_end 123456789` - Removes the partnership role from the user with ID 123456789.",
-            inline=False,
-        )
-        embed3.add_field(
-            name="$sendrateserverinfo (ID)",
-            value=(
-                "🌟 **Send Rate Server Info**\n"
-                "Send a friendly reminder to a user, encouraging them to rate our server.\n"
-                "**Usage:** Only for admins.\n"
-                "🛠️ **Example:** \n"
-                "`$sendrateserverinfo 123456789` - Sends a rating reminder to the user with ID **123456789**."
-            ),
-            inline=False,
-        )
-
-        await ctx.send(embed=embed3)
-
-@bot.command(name="userhelp")
-async def userhelp(ctx):
-    """Shows help for normal users."""
-    await UserHelpCommand().send_bot_help(ctx)
-
-@bot.command(name="adminhelp")
-async def adminhelp(ctx):
-    """Shows help for admin commands."""
-    if ctx.author.guild_permissions.administrator:
-        await AdminHelpCommand().send_bot_help(ctx)
-    else:
-        await ctx.send(
-            "You need to have administrator permissions to use this command."
-        )
-
-bot.help_command = UserHelpCommand()
 
 #################################################################################
 
@@ -4388,62 +3161,6 @@ async def on_message(message):
 
 #################################################################################
 
-
-@bot.command(name="say")
-@commands.has_permissions(administrator=True)
-async def say(ctx, *, message: str):
-    if ctx.author.id == SAY_USER_ID:
-        sent_message = await ctx.send(message)
-        try:
-            await ctx.message.delete() 
-        except discord.errors.NotFound:
-            print("Message already deleted or not found.")
-        except discord.errors.Forbidden:
-            print("Bot does not have permission to delete the message.")
-
-
-#################################################################################
-
-
-@bot.command(name="announcement")
-@commands.has_permissions(administrator=True)
-async def announcement(ctx, *, message: str):
-    if ctx.guild is None:
-        await ctx.send("This command cannot be used in DMs.")
-        return
-
-    sent_count = 0
-    failed_members = []
-    sent_to = set()
-
-    for member in ctx.guild.members:
-        if member.id not in sent_to:
-            try:
-                if member.dm_channel is None:
-                    await member.create_dm()
-                await member.send(message)
-                sent_count += 1
-                sent_to.add(member.id) 
-            except discord.Forbidden:
-                print(f"Could not send DM to {member.name}: DMs disabled.")
-                failed_members.append(member.name)
-            except discord.HTTPException as e:
-                print(f"HTTPException while sending DM to {member.name}: {e}")
-                failed_members.append(member.name)
-            except Exception as e:
-                print(f"Unexpected error with {member.name}: {e}")
-                failed_members.append(member.name)
-
-    await ctx.send(f"Announcement has been sent to {sent_count} members!")
-
-    if failed_members:
-        await ctx.send(
-            f"Failed to send the announcement to: {', '.join(failed_members)}."
-        )
-
-
-#################################################################################
-
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def clear(ctx, amount: int):
@@ -4838,183 +3555,28 @@ async def check_sales(ctx):
 
 #################################################################################
 
-# PARTNERSHIP PROGRAM START AND END COMMANDS
-#-----------------------------------------------------------------------------
-
-@bot.command()
-async def partnership_start(ctx, user_id: int):
-    """Assigns the 'Partnership Program' role to the user and sends a welcome message."""
-    if not ctx.author.guild_permissions.administrator:
-        await ctx.send(
-            "❌ **You do not have permission to use this command. Only admins can do this.**"
-        )
-        return
-
-    try:
-        guild = await bot.fetch_guild(GUILD_ID)
-        member = await guild.fetch_member(user_id)
-
-        if not member:
-            await ctx.send("❌ **User not found on the server!**")
-            return
-
-        role = guild.get_role(PARTNERSHIP_ROLE_ID)
-        if role in member.roles:
-            await ctx.send(f"⚠️ <@{user_id}> already has the partnership role!")
-            return
-
-        await member.add_roles(role)
-
-        embed = discord.Embed(
-            title="🎉 Welcome to the BetterSideOfGaming Partnership Program! 🎉",
-            description=(
-                "Thank you for joining our partnership program on Discord! We are excited to have you as part of our community, and we hope our collaboration will be beneficial to both parties.\n\n"
-                "If you have any questions or concerns, feel free to reach out to the server admins or contact us through our website:\n\n"
-                "🔗 [Better Side Of Gaming - Discord Server](https://vezyyy.github.io/BetterSideOfGaming/)\n\n"
-                "Once again, thank you, and we look forward to a successful partnership! 🚀🎮"
-            ),
-            color=discord.Color.green(),
-        )
-        embed.set_footer(text="BetterSideOfGaming")
-
-        try:
-            await member.send(embed=embed)
-            await ctx.send(f"✅ **Partnership started for <@{user_id}>!**")
-        except discord.Forbidden:
-            await ctx.send(
-                f"⚠️ Could not send a message to <@{user_id}>. Please check if their DMs are open."
-            )
-        except Exception as e:
-            await ctx.send(f"⚠️ An error occurred while sending the message: {e}")
-
-    except discord.NotFound:
-        await ctx.send("❌ **User or server not found!**")
-    except discord.Forbidden:
-        await ctx.send(
-            "⚠️ The bot does not have permission to assign roles or send messages."
-        )
-    except Exception as e:
-        await ctx.send(f"⚠️ An error occurred: {e}")
-
-# Partnership Start Command 
-#-----------------------------------------------------------------------------
-
-@bot.command()
-async def partnership_end(ctx, user_id: int):
-    """Removes the 'Partnership Program' role from the user and sends a termination message."""
-    if not ctx.author.guild_permissions.administrator:
-        await ctx.send(
-            "❌ **You do not have permission to use this command. Only admins can do this.**"
-        )
-        return
-
-    try:
-        guild = await bot.fetch_guild(GUILD_ID)
-        member = await guild.fetch_member(user_id)
-
-        if not member:
-            await ctx.send("❌ **User not found on the server!**")
-            return
-
-        role = guild.get_role(PARTNERSHIP_ROLE_ID)
-        if role not in member.roles:
-            await ctx.send(f"⚠️ <@{user_id}> does not have the partnership role!")
-            return
-
-        await member.remove_roles(role)
-
-        embed = discord.Embed(
-            title="❌ Partnership Termination with BetterSideOfGaming ❌",
-            description=(
-                "Your partnership with BetterSideOfGaming has been terminated. Thank you for the cooperation so far!\n\n"
-                "If you ever wish to join us again, we are open to discussions. 😊\n\n"
-                "🔗 [Better Side Of Gaming - Discord Server](https://vezyyy.github.io/BetterSideOfGaming/)\n\n"
-                "We wish you the best in your future endeavors! 🎮"
-            ),
-            color=discord.Color.red(),
-        )
-        embed.set_footer(text="BetterSideOfGaming")
-
-        try:
-            await member.send(embed=embed)
-            await ctx.send(f"✅ **Partnership terminated for <@{user_id}>!**")
-        except discord.Forbidden:
-            await ctx.send(
-                f"⚠️ Could not send a message to <@{user_id}>. Please check if their DMs are open."
-            )
-        except Exception as e:
-            await ctx.send(f"⚠️ An error occurred while sending the message: {e}")
-
-    except discord.NotFound:
-        await ctx.send("❌ **User or server not found!**")
-    except discord.Forbidden:
-        await ctx.send(
-            "⚠️ The bot does not have permission to remove roles on the server."
-        )
-    except Exception as e:
-        await ctx.send(f"⚠️ An error occurred: {e}")
-
-
-#################################################################################
-
-# RATE OUR SERVER BSOG
-#-----------------------------------------------------------------------------
-
-@bot.command(name="sendrateserverinfo")
-async def send_rate_server_info(ctx, user_id: int):
-    if not ctx.author.guild_permissions.administrator:
-        await ctx.send("Only administrators can use this command.")
-        return
-
-    guild = ctx.guild
-    user = guild.get_member(user_id)
-
-    if user is None:
-        await ctx.send("I couldn't find a user with that ID.")
-        return
-    
-    star_rating = "⭐" * 5 
-    rating_description = "How would you rate our server? Please leave your feedback! 😎"
-
-    embed = discord.Embed(
-        title="😇 Thank You for Being With Us! 😇",
-        description=f"**{user.display_name}**, you've been on our server for a while! Would you like to rate our server? 🥰",
-        color=discord.Color.blue(),
-    )
-    embed.add_field(
-        name="📝 Rate Us!",
-        value=rating_description,
-        inline=False,
-    )
-    embed.add_field(
-        name="Your Star Rating:",
-        value=star_rating,
-        inline=False,
-    )
-    embed.add_field(
-        name="🌟 Leave Feedback!",
-        value="You can do that here: [Rate us on Disboard](https://disboard.org/pl/server/1294993835717562470)",
-        inline=False,
-    )
-    embed.set_footer(text="Your feedback is important to us!")
-
-    embed.set_thumbnail(
-        url="https://example.com/path_to_your_thumbnail.png"
-    ) 
-
-    try:
-        await user.send(embed=embed)
-        await ctx.send(f"Message sent to {user.display_name}!")
-    except discord.errors.Forbidden:
-        await ctx.send(
-            f"I can't send a message to {user.display_name} because their DMs are closed."
-        )
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        await ctx.send("An error occurred while trying to send the message.")
-
-
-#################################################################################
-
 # Run the bot
 bot.run(TOKEN)
+
+"""
+====================================================================================================
+VPanda & VPanda Studio © 2024-2025 All Rights Reserved
+Official Site: https://vezyyy.github.io/VPanda/
+
+IMPORTANT NOTICE:
+
+All code, modules, commands, and concepts included in this project are created as part of the 
+VPanda & VPanda Studio development concept. This project represents proprietary work and is the 
+intellectual property of VPanda Studio.
+
+If you wish to reuse, adapt, or incorporate any parts, modules, or solutions from this project into 
+your own work, you MUST give proper attribution to VPanda Studio and clearly indicate that the 
+original idea or implementation comes from this source. Failure to provide attribution may 
+constitute a violation of intellectual property rights.
+
+For more detailed information about usage rights, limitations, and licensing, please consult 
+the LICENSE file included in this project.
+
+Thank you for respecting the work and creativity of the VPanda & VPanda Studio team.
+====================================================================================================
+"""
