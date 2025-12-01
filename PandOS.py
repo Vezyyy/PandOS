@@ -32,15 +32,18 @@ from discord.ext import commands
 import random
 import string
 import asyncio
-import PandOS_Config 
 import time
 import datetime
 import re
 import logging
-from PandOS_greetings_data import greetings, conversations 
 from BSOG_Team import team_points 
-import PandOS_Config # Private config file with tokens and IDs | User your discord bot token here and other IDs
-import importlib
+from PandOS_Config import (
+    CHAIN_WORDS_CHANNEL_ID,
+    PARTNERSHIP_ROLE_ID,
+    SERVERS_MESSAGES_CHANNEL_ID,
+    NEW_USER_CHANNEL_ID,
+    PROTECTED_CHANNELS_IDS,
+)
 import os
 import json 
 from collections import defaultdict
@@ -53,6 +56,9 @@ from io import BytesIO
 # -------------------------------------------------------------------------------
 #################################################################################
 import PandOS_functions
+from PandOS_functions import*
+import PandOS_Config 
+from PandOS_Config import*
 #################################################################################
 # -------------------------------------------------------------------------------
 
@@ -73,13 +79,6 @@ current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 # Bot info
 BOT_STATUS = "Online"  
 BOT_VERSION = "7.0.0" 
-
-#################################################################################
-
-# ID kanałów do edycji
-STATUS_CHANNEL_ID = 1330230361342611588 
-VERSION_CHANNEL_ID = 1330230299031896074 
-DATE_CHANNEL_ID = 1330235429730910233 
 
 #################################################################################
 
@@ -137,31 +136,6 @@ bot = commands.Bot(command_prefix="$", intents=intents)
 # RANDOM PANDOS CONVERSATIONS
 # -----------------------------------
 
-# Function to load words from JSON file
-
-def load_words_from_json():
-    try:
-        with open("words.json", "r", encoding="utf-8") as f:
-            data = json.load(f)
-            return data["words"]
-    except FileNotFoundError:
-        print("Plik 'words.json' nie został znaleziony.")
-        return []
-
-
-# Function to save words to JSON file
-
-def save_words_to_json(words):
-    data = {"words": words}
-    with open("words.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-    print("Słowa zostały zapisane do pliku 'words.json'.")
-
-# function to remove links from text
-
-def remove_links(text):
-    return re.sub(r"http[s]?://\S+|www\.\S+", "", text)
-
 # Collect words from messages in specified channels
 
 async def collect_words(message):
@@ -186,116 +160,7 @@ async def collect_words(message):
 
     save_words_to_json(list(unique_words))
 
-
-# Function to generate a random sentence
-
-def generate_random_sentence():
-    words = load_words_from_json()
-    if not words:
-        return "Sorry, no words available to generate a sentence."
-
-    sentence_length = random.randint(3, 10)  
-    sentence = random.sample(words, sentence_length)  
-    return " ".join(sentence) 
-
-
 #################################################################################
-
-# NEW USER GAMBLING ACCOUNT IN PANDOS SYSTEM
-
-# This function adds a new user to the gambling system with default values when they join.
-# If the user already exists but has missing data fields, it adds those fields with default values.
-# Finally, it saves the updated data back to the JSON file.
-
-def add_user_on_join(user_id):
-    user_id = str(user_id) 
-
-    if os.path.exists(file_path):
-        with open(file_path, "r") as f:
-            try:
-                data = json.load(f)
-            except json.JSONDecodeError:
-                data = {}  
-    else:
-        data = {}
-
-    if user_id not in data:
-        data[user_id] = {
-            "balance": 0,
-            "last_work": 0,
-            "last_robbery": 0,
-            "failed_rob_attempts": 0,
-            "protection_end": 0,
-            "inventory": {"PandoCoin": 0}, 
-            "last_rob_time": 0,
-            "pando_balance": 0,
-        }
-        print(
-            f"✅ Użytkownik {user_id} został dodany do pliku z domyślnymi wartościami."
-        )
-    else:
-        user_data = data[user_id]
-        updated = False
-
-        required_fields = {
-            "balance": 0,
-            "last_work": 0,
-            "last_robbery": 0,
-            "failed_rob_attempts": 0,
-            "protection_end": 0,
-            "inventory": {}, 
-            "last_rob_time": 0,
-            "pando_balance": 0,
-        }
-
-        for field, default_value in required_fields.items():
-            if field not in user_data:
-                user_data[field] = default_value
-                updated = True
-
-        if "inventory" not in user_data or not isinstance(user_data["inventory"], dict):
-            user_data["inventory"] = {"PandoCoin": 0}
-            updated = True
-        elif "PandoCoin" not in user_data["inventory"]:
-            user_data["inventory"]["PandoCoin"] = 0
-            updated = True
-
-        if updated:
-            data[user_id] = user_data
-            print(f"🔄 Użytkownik {user_id} miał brakujące dane, które zostały dodane.")
-        else:
-            print(f"✅ Użytkownik {user_id} ma już wszystkie wymagane dane.")
-
-    with open(file_path, "w") as f:
-        json.dump(data, f, indent=4)
-
-
-#################################################################################
-
-# GAMBLING
-# GAMBLING LOAD
-# This section handles loading and saving user data for the gambling system.
-# The data is stored in a JSON file named "gambling.json".
-# Functions are provided to load and save the data.
-# Usage: load_data() and save_data(data)
-
-file_path = "gambling.json"
-
-
-def load_data():
-    if not os.path.exists(file_path):
-        with open(file_path, "w") as file:
-            json.dump({}, file)
-
-    if os.path.getsize(file_path) == 0:
-        return {}
-
-    with open(file_path, "r") as file:
-        return json.load(file)
-
-def save_data(data):
-    with open(file_path, "w") as file:
-        json.dump(data, file, indent=4)
 
 
 # -----------------------------------------------------------------
@@ -305,29 +170,6 @@ def save_data(data):
 # The rate changes every 30 seconds within a range of -2% to +2%.
 # The current rate and its history are stored in a JSON file.
 # A command is provided to display the current rate and a graph of historical rates.
-
-rate_file_path = "pandocoin_rate.json"
-gambling_file_path = "gambling.json"
-
-
-def load_pandocoin_data():
-    if not os.path.exists(rate_file_path):
-        return {"rate": 1, "history": [1]} 
-    with open(rate_file_path, "r") as file:
-        return json.load(file)
-
-
-def save_pandocoin_data(data):
-    with open(rate_file_path, "w") as file:
-        json.dump(data, file, indent=4)
-
-
-def simulate_rate_change(current_rate):
-    change_percentage = random.uniform(
-        -0.02, 0.02
-    )  
-    new_rate = current_rate * (1 + change_percentage)
-    return round(new_rate, 2)
 
 
 @tasks.loop(seconds=30)  
@@ -373,30 +215,6 @@ async def pandocoin(ctx):
     embed.set_image(url="attachment://pandocoin_rate.png")
 
     await ctx.send(embed=embed, file=discord.File(buf, "pandocoin_rate.png"))
-
-
-def load_user_data():
-    if not os.path.exists(gambling_file_path):
-        return {}  
-    with open(gambling_file_path, "r") as file:
-        return json.load(file)
-
-
-def save_user_data(data):
-    with open(file_path, "w") as file:
-        json.dump(data, file, indent=4)
-
-
-def load_user_data():
-    if not os.path.exists(file_path):
-        return {}
-    with open(file_path, "r") as file:
-        return json.load(file)
-
-
-def save_user_data(data):
-    with open(file_path, "w") as file:
-        json.dump(data, file, indent=4)
 
 
 # -----------------------------------------------------------------
@@ -864,17 +682,17 @@ async def rob(ctx):
 async def register(ctx):
     user_id = str(ctx.author.id)  #
 
-    if not os.path.exists(file_path):
-        with open(file_path, "w") as file:
+    if not os.path.exists(gambling_file_path):
+        with open(gambling_file_path, "w") as file:
             json.dump({}, file)
         data = {}
     else:
         try:
-            with open(file_path, "r") as file:
+            with open(gambling_file_path, "r") as file:
                 data = json.load(file)
         except json.JSONDecodeError:
 
-            with open(file_path, "w") as file:
+            with open(gambling_file_path, "w") as file:
                 json.dump({}, file)
             data = {}
 
@@ -923,7 +741,7 @@ async def register(ctx):
 
     if updated:
         data[user_id] = user_data
-        with open(file_path, "w") as file:
+        with open(gambling_file_path, "w") as file:
             json.dump(data, file, indent=4)
         print(f"Użytkownik {user_id} miał brakujące dane, które zostały dodane.")
 
@@ -1722,62 +1540,6 @@ async def gambling(ctx, game_name: str = None, *args):
 
 #################################################################################
 
-# Keeping track of user XP and levels
-
-user_data = defaultdict(
-    lambda: {"xp": 0, "level": 1, "last_message_time": 0, "voice_start_time": 0}
-)
-
-
-# Function to calculate XP needed for next level
-
-def xp_to_next_level(level):
-    return 100 + (level - 1) * 50
-
-
-# Path to the JSON data file
-
-DATA_FILE = "user_data.json"
-
-# Initial load of user data
-
-if os.path.exists(DATA_FILE):
-    with open(DATA_FILE, "r") as file:
-        user_data = json.load(file)
-
-
-# Fuction to save user data to JSON file
-
-def save_user_data():
-    with open(DATA_FILE, "w") as file:
-        json.dump(user_data, file, indent=4)
-
-
-# Function to get user data or initialize if not present
-
-def get_user_data(user_id):
-    if str(user_id) not in user_data:
-        user_data[str(user_id)] = {
-            "xp": 0,
-            "level": 1,
-            "last_message_time": 0,
-            "voice_start_time": 0,
-        }
-    return user_data[str(user_id)]
-
-
-# Function to check and handle level up
-
-def check_level_up(user):
-    leveled_up = False
-    while user["xp"] >= xp_to_next_level(user["level"]):
-        user["xp"] -= xp_to_next_level(user["level"])
-        user["level"] += 1
-        leveled_up = True
-        print(f"Użytkownik awansował na poziom {user['level']}!")
-    return leveled_up
-
-
 # Cyclic save task
 
 @tasks.loop(minutes=5)
@@ -1841,16 +1603,6 @@ async def grant_voice_xp():
                             print(f"An error occurred: {e}")
 
 
-# Function to add XP and check for level up
-
-def add_xp(user_id, xp_amount):
-    user = get_user_data(user_id)
-    user["xp"] += xp_amount 
-    leveled_up = check_level_up(user) 
-    save_user_data() 
-    return leveled_up 
-
-
 @bot.event
 async def on_voice_state_update(member, before, after):
     user_id = str(member.id)
@@ -1911,43 +1663,6 @@ logging.basicConfig(
     level=logging.INFO, 
     format="%(asctime)s - %(levelname)s - %(message)s", 
 )
-
-# function to load team points from a file
-
-def load_team_points():
-    if os.path.exists("BSOG_Team.py"):
-        team_data = importlib.import_module("BSOG_Team")
-        logging.info("Successfully loaded team points from BSOG_Team.py")
-        return team_data.team_points
-    else:
-        logging.warning("BSOG_Team.py not found. Initializing with default points.")
-        return {
-            "❤️ Team Red": 0,
-            "💙 Team Blue": 0,
-            "💚 Team Green": 0,
-            "💛 Team Yellow": 0,
-            "💜 Team Purple": 0,
-            "🧡 Team Orange": 0,
-            "💖 Team Pink": 0,
-            "💠 Team Cyan": 0,
-            "⚫ Team Black": 0,
-            "⚪ Team White": 0,
-        }
-
-
-# Function to save the team points to a file
-
-def save_team_points(team_points):
-    try:
-        with open("BSOG_Team.py", "w") as file:
-            file.write("team_points = {\n")
-            for team, points in team_points.items():
-                file.write(f'    "{team}": {points},\n')
-            file.write("}\n")
-        logging.info("Successfully saved team points to BSOG_Team.py")
-    except Exception as e:
-        logging.error(f"Error saving team points to file: {e}")
-
 
 # initialize team points
 
@@ -2137,57 +1852,6 @@ async def send_welcome_message_to_user(member):
 
 #################################################################################
 
-# function to detect greetings in different languages
-
-def detect_greeting(message):
-    logging.debug(f"Detecting greeting in message: {message.content}")
-    user_message = (
-        message.content.lower().strip()
-    ) 
-
-    for lang, words in greetings.items():
-        for word in words:
-            if re.search(
-                rf"\b{re.escape(word)}\b", user_message
-            ): 
-                logging.debug(f"Greeting detected: {lang} with word: {word}")
-                return lang
-    logging.debug("No greeting detected.")
-    return None
-
-
-#################################################################################
-
-# Function to get a random greeting response based on language
-
-def get_greeting_response(lang):
-    greetings_responses = {
-        "en": ["Hello!", "Hi there!", "Hey, how's it going?", "Greetings!"],
-        "pl": ["Cześć!", "Hejka!", "Witaj!", "Siema!", "Jak się masz?"],
-        "de": ["Hallo!", "Servus!", "Guten Tag!", "Wie geht's?"],
-        "es": ["¡Hola!", "¡Qué tal!", "¡Buenos días!", "¡Buenas tardes!"],
-    }
-    return random.choice(greetings_responses.get(lang, ["Hello!"]))
-
-
-#################################################################################
-
-# Function to detect conversation keywords and respond
-
-def get_conversation_response(message, lang):
-    logging.debug(f"Processing message: {message.content} in language: {lang}")
-    user_message = message.content.lower().strip()
-
-    for keyword, responses in conversations.items():
-        if re.search(rf"\b{re.escape(keyword)}\b", user_message):
-            response_list = responses.get(lang, [])
-            if response_list:
-                return random.choice(response_list)
-    return None
-
-
-#################################################################################
-
 # Function to load command modules dynamically from the commands directory
 
 async def load_commands():
@@ -2320,26 +1984,6 @@ async def report_bug(ctx, *, reason: str):
 
 
 #################################################################################
-
-# GOONER OF THE DAY COMMAND
-# ----------------------------
-
-COOLDOWN_FILE = "gooneroftheday.json"
-CHANNEL_ID = 1295000603679916042 
-gooneroftheday = ""
-
-
-def load_cooldown():
-    try:
-        with open(COOLDOWN_FILE, "r") as f:
-            return json.load(f)
-    except:
-        return {"last_used": 0, "last_user_id": None}
-
-
-def save_cooldown(data):
-    with open(COOLDOWN_FILE, "w") as f:
-        json.dump(data, f)
 
 
 @bot.command()
@@ -3455,12 +3099,6 @@ async def start(ctx, code: str):
 
 
 #################################################################################
-
-def format_price(price, currency="EUR"):
-    """Format Steam price (minor units) to currency string."""
-    if price is None:
-        return "No data"
-    return f"{price / 100:.2f} {currency}"
 
 async def fetch_steam_sales():
     """Fetches current Steam sales and sends individual Discord embeds for each game with role ping and store link."""
