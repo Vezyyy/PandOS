@@ -35,15 +35,7 @@ import asyncio
 import time
 import datetime
 import re
-import logging
-from BSOG_Team import team_points 
-from PandOS_Config import (
-    CHAIN_WORDS_CHANNEL_ID,
-    PARTNERSHIP_ROLE_ID,
-    SERVERS_MESSAGES_CHANNEL_ID,
-    NEW_USER_CHANNEL_ID,
-    PROTECTED_CHANNELS_IDS,
-)
+import logging 
 import os
 import json 
 from collections import defaultdict
@@ -56,6 +48,7 @@ from io import BytesIO
 # -------------------------------------------------------------------------------
 #################################################################################
 import PandOS_functions
+from BSOG_Team import team_points
 from PandOS_functions import*
 import PandOS_Config 
 from PandOS_Config import*
